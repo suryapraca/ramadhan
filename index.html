@@ -1,483 +1,238 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-  <meta name="theme-color" content="#0a0f1a" id="meta-theme"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Ramadan"/>
-  <meta name="description" content="Aplikasi Ramadhan 1447H - Jadwal Sholat, Doa, Kajian"/>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
-  <link rel="icon" href="icons/icon-192.png"/>
-  <title>Ramadan 1447H</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+import { useState, useEffect } from "react";
 
-  <style>
-    :root {
-      /* Dark theme (default) */
-      --bg:#0a0f1a; --bg2:#111827;
-      --card:rgba(255,255,255,0.05); --cardB:rgba(255,255,255,0.09);
-      --text:#f0ede6; --sub:rgba(240,237,230,0.55); --mute:rgba(240,237,230,0.32);
-      --nav:#0b1020; --navB:rgba(212,175,55,0.18);
-      --inp:rgba(255,255,255,0.07); --inpB:rgba(255,255,255,0.14);
-      --div:rgba(255,255,255,0.07);
-      --gold:#d4af37; --goldT:#f5e198; --goldD:rgba(212,175,55,0.82);
-      --acc:rgba(212,175,55,0.13); --accB:rgba(212,175,55,0.35);
-      --modal:#0d1728;
-      --hero1:#0d1a2e; --hero2:#162035; --hero3:#0f1e0e;
-      --cnt:#f5e198;
-      --slabel:rgba(240,237,230,0.38);
-      --divRow:rgba(255,255,255,0.018);
-      --blueBg:rgba(32,100,180,0.14); --blueT:#93c5fd;
-      --greenBg:rgba(20,80,45,0.22); --greenB:rgba(32,178,95,0.18);
-      --tabIco:rgba(240,237,230,0.32);
-    }
-    .light {
-      --bg:#f7f2e8; --bg2:#fefcf7;
-      --card:rgba(255,255,255,0.88); --cardB:rgba(180,140,50,0.18);
-      --text:#1c1408; --sub:rgba(28,20,8,0.6); --mute:rgba(28,20,8,0.37);
-      --nav:#faf7f0; --navB:rgba(180,140,50,0.22);
-      --inp:rgba(255,255,255,0.8); --inpB:rgba(160,120,40,0.24);
-      --div:rgba(160,120,40,0.1);
-      --gold:#b37f00; --goldT:#8a6000; --goldD:rgba(140,100,0,0.88);
-      --acc:rgba(180,140,50,0.1); --accB:rgba(160,120,40,0.3);
-      --modal:#fefcf7;
-      --hero1:#fffdf4; --hero2:#fffaec; --hero3:#f5f2e0;
-      --cnt:#8a6000;
-      --slabel:rgba(28,20,8,0.4);
-      --divRow:rgba(0,0,0,0.018);
-      --blueBg:rgba(32,100,180,0.07); --blueT:#2563eb;
-      --greenBg:rgba(20,120,60,0.07); --greenB:rgba(32,160,80,0.18);
-      --tabIco:rgba(28,20,8,0.35);
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-    html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text)}
-    ::-webkit-scrollbar{display:none}
-    .app{display:flex;flex-direction:column;height:100dvh;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;transition:background .3s}
-    .geo{background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(212,175,55,0.06)' stroke-width='1'%3E%3Cpolygon points='30,2 58,17 58,43 30,58 2,43 2,17'/%3E%3Cpolygon points='30,12 48,22 48,38 30,48 12,38 12,22'/%3E%3C/g%3E%3C/svg%3E")}
-    .app.light .geo{background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(180,140,60,0.1)' stroke-width='1'%3E%3Cpolygon points='30,2 58,17 58,43 30,58 2,43 2,17'/%3E%3Cpolygon points='30,12 48,22 48,38 30,48 12,38 12,22'/%3E%3C/g%3E%3C/svg%3E")}
-
-    /* Top bar */
-    .topbar{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:var(--nav);border-bottom:1px solid var(--navB);padding-top:max(10px,env(safe-area-inset-top))}
-    .app-title{color:var(--goldD);font-size:12px;font-weight:700;letter-spacing:.5px}
-    .top-right{display:flex;align-items:center;gap:10px}
-    .clock{color:var(--mute);font-size:11px;font-family:monospace}
-    .theme-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none}
-    .sw-track{width:42px;height:24px;border-radius:12px;background:var(--acc);border:1px solid var(--accB);position:relative;transition:all .3s;cursor:pointer}
-    .sw-knob{width:18px;height:18px;border-radius:50%;background:var(--gold);position:absolute;top:2px;left:2px;transition:left .28s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,.3)}
-    .sw-knob.on{left:20px}
-
-    /* Content area */
-    .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
-    .page{display:none;padding:0 15px 20px;animation:fi .3s ease}
-    .page.active{display:block}
-    @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-    /* Bottom Nav */
-    .bottom-nav{flex-shrink:0;display:flex;background:var(--nav);border-top:1px solid var(--navB);padding:8px 0 max(14px,env(safe-area-inset-bottom))}
-    .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 0}
-    .tab-btn .ico{font-size:21px;transition:transform .2s}
-    .tab-btn.active .ico{transform:scale(1.12)}
-    .tab-btn .lbl{font-size:10px;color:var(--tabIco);font-family:Outfit,sans-serif;font-weight:500;transition:color .2s}
-    .tab-btn.active .lbl{color:var(--gold);font-weight:700}
-    .tab-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);margin-top:1px}
-
-    /* Cards */
-    .card{background:var(--card);border:1px solid var(--cardB);border-radius:18px;overflow:hidden;margin-bottom:14px}
-    .section-label{font-size:10px;letter-spacing:2px;color:var(--slabel);font-weight:600;margin:0 0 10px 4px;text-transform:uppercase}
-
-    /* Hero */
-    .hero{border-radius:22px;padding:20px;margin:14px 0;border:1px solid var(--accB);background:linear-gradient(135deg,var(--hero1),var(--hero2),var(--hero3));position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;top:-20px;right:-20px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.12) 0%,transparent 70%)}
-    .hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-    .hero-date{color:var(--mute);font-size:11px;letter-spacing:1.2px}
-    .hero-hijri{color:var(--goldD);font-size:11px;margin-top:3px}
-    .loc-btn{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.07);border:1px solid var(--cardB);border-radius:12px;padding:5px 10px;cursor:pointer;max-width:140px}
-    .app.light .loc-btn{background:rgba(0,0,0,.05)}
-    .loc-btn-text{color:var(--sub);font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
-    .hero-center{text-align:center;padding:6px 0}
-    .hero-lbl{color:var(--sub);font-size:12px;margin-bottom:5px}
-    .countdown{font-family:monospace;font-size:44px;font-weight:700;color:var(--cnt);letter-spacing:2px}
-    .ram-badge{display:inline-block;background:var(--acc);border:1px solid var(--accB);border-radius:20px;padding:4px 14px;color:var(--gold);font-size:11px;font-weight:700;margin-top:12px}
-
-    /* Prayer grid */
-    .prayer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-    .prayer-card{border-radius:18px;padding:14px;border:1px solid var(--cardB);background:var(--card)}
-    .prayer-card.next{background:var(--acc);border-color:var(--accB)}
-    .pc-top{display:flex;justify-content:space-between;align-items:center}
-    .next-badge{background:var(--gold);border-radius:6px;padding:2px 7px;font-size:8px;font-weight:800;color:#0a0f1a}
-    .pc-name{color:var(--sub);font-size:11px;margin:8px 0 2px}
-    .pc-time{font-size:22px;font-weight:700;color:var(--text)}
-    .prayer-card.next .pc-time,.prayer-card.next .pc-name~*{color:var(--cnt)}
-
-    /* Amalan */
-    .amalan-row{display:flex;align-items:center;padding:13px 14px;border-bottom:1px solid var(--div)}
-    .amalan-row:last-child{border-bottom:none}
-    .am-ico{font-size:20px;margin-right:12px;flex-shrink:0}
-    .am-title{font-size:13px;font-weight:500;color:var(--text)}
-    .am-sub{font-size:11px;color:var(--mute);margin-top:1px}
-    .checkbox{width:22px;height:22px;border-radius:50%;border:2px solid var(--accB);flex-shrink:0}
-
-    /* Ayat */
-    .ayat-card{background:var(--greenBg);border:1px solid var(--greenB);border-radius:18px;padding:18px;text-align:center;margin-bottom:16px}
-    .ayat-ar{font-family:'Amiri',serif;font-size:20px;color:var(--goldD);direction:rtl;line-height:2;margin-bottom:10px}
-    .ayat-tr{font-size:12px;color:var(--sub);font-style:italic;line-height:1.6}
-
-    /* Prayer time full list */
-    .pr-row{display:flex;align-items:center;padding:13px 15px;border-bottom:1px solid var(--div)}
-    .pr-row:last-child{border-bottom:none}
-    .pr-row.next-row{background:var(--acc)}
-    .pr-ico{font-size:18px;width:26px;text-align:center;margin-right:11px;flex-shrink:0}
-    .pr-name{flex:1;font-size:14px;color:var(--text)}
-    .pr-row.next-row .pr-name,.pr-row.next-row .pr-time{color:var(--cnt);font-weight:600}
-    .pr-time{font-size:15px;font-weight:600;font-family:monospace;color:var(--text)}
-
-    /* Table */
-    .table-wrap{border:1px solid var(--cardB);border-radius:16px;overflow:hidden;margin-bottom:16px}
-    .table-head{display:grid;grid-template-columns:28px 1fr 52px 52px 54px;padding:10px 12px;background:var(--acc)}
-    .th{color:var(--gold);font-size:9px;font-weight:700;letter-spacing:.5px}
-    .tr{display:grid;grid-template-columns:28px 1fr 52px 52px 54px;padding:10px 12px;border-bottom:1px solid var(--div)}
-    .tr:last-child{border-bottom:none}
-    .tr.today-row{background:var(--acc)}
-    .td{font-size:11px;color:var(--sub)}
-    .td.num{color:var(--mute)}
-    .td.buka{color:#f59e0b;font-weight:600}
-    .app.light .td.buka{color:#b45309}
-    .tr.today-row .td{color:var(--sub)}
-    .tr.today-row .td.num{color:var(--gold);font-weight:700}
-    .tr.today-row .td.buka{color:var(--gold)}
-
-    /* Kajian */
-    .kajian-card{cursor:pointer;border-radius:20px;overflow:hidden;margin-bottom:13px;border:1px solid var(--cardB);background:var(--card);active:opacity:.85}
-    .kajian-card:active{opacity:.85}
-    .kjt{padding:16px;border-bottom:1px solid var(--div);background:rgba(255,255,255,.025)}
-    .app.light .kjt{background:rgba(0,0,0,.015)}
-    .kj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .cat-badge{border-radius:10px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--sub);background:rgba(255,255,255,.07)}
-    .app.light .cat-badge{background:rgba(0,0,0,.06)}
-    .kj-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.4}
-    .kjb{padding:14px}
-    .kj-exc{font-size:12px;color:var(--sub);line-height:1.7;margin-bottom:10px}
-    .kj-footer{display:flex;justify-content:space-between;align-items:center}
-    .kj-meta{font-size:11px;color:var(--mute)}
-    .kj-read{font-size:12px;font-weight:600;color:var(--gold)}
-
-    /* Back btn */
-    .back-btn{display:inline-flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--cardB);border-radius:12px;padding:9px 14px;cursor:pointer;font-size:12px;color:var(--text);font-family:Outfit,sans-serif;margin:14px 0}
-
-    /* Detail */
-    .detail-card{border:1px solid var(--cardB);border-radius:20px;overflow:hidden}
-    .detail-head{padding:20px;border-bottom:1px solid var(--div)}
-    .detail-body{padding:18px;background:var(--card)}
-    .detail-content{font-size:14px;color:var(--sub);line-height:1.85;white-space:pre-line}
-
-    /* Doa */
-    .doa-card{background:var(--card);border:1px solid var(--cardB);border-radius:18px;padding:15px;margin-bottom:11px;cursor:pointer}
-    .doa-card:active{opacity:.85}
-    .doa-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .doa-title{font-size:14px;font-weight:600;color:var(--text)}
-    .doa-ar{font-family:'Amiri',serif;font-size:16px;color:var(--goldD);direction:rtl;line-height:1.9;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .doa-arti{font-size:11px;color:var(--mute);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .arabic-box{background:rgba(212,175,55,.06);border:1px solid var(--accB);border-radius:14px;padding:18px;margin-bottom:15px}
-    .app.light .arabic-box{background:rgba(212,175,55,.07)}
-    .arabic-full{font-family:'Amiri',serif;font-size:22px;color:var(--goldD);direction:rtl;text-align:right;line-height:2.1}
-    .field-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:5px}
-    .latin-txt{font-size:13px;color:var(--sub);font-style:italic;line-height:1.75;margin-bottom:14px}
-    .arti-txt{font-size:13px;color:var(--text);line-height:1.75;margin-bottom:17px}
-    .copy-btn{width:100%;padding:13px;border-radius:13px;border:1px solid var(--accB);background:var(--acc);color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;font-family:Outfit,sans-serif;transition:all .2s}
-    .copy-btn.copied{background:rgba(52,211,153,.18);border-color:#34d399;color:#34d399}
-
-    /* Progress */
-    .prog-card{background:var(--blueBg);border:1px solid var(--navB);border-radius:18px;padding:15px;margin-bottom:14px}
-    .prog-row{display:flex;justify-content:space-between;margin-bottom:7px}
-    .prog-bar{height:7px;background:var(--cardB);border-radius:5px;overflow:hidden}
-    .prog-fill{height:100%;background:linear-gradient(90deg,#60a5fa,#93c5fd);border-radius:5px;transition:width .9s ease}
-
-    /* Surah */
-    .surah-row{display:flex;align-items:center;padding:13px;border-radius:14px;margin-bottom:7px;background:var(--card);border:1px solid var(--cardB)}
-    .surah-num{width:36px;height:36px;border-radius:9px;background:var(--acc);border:1px solid var(--accB);display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0}
-    .surah-ar{font-family:'Amiri',serif;font-size:16px;color:var(--goldD);direction:rtl}
-
-    /* Location Modal */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:flex-end;justify-content:center;display:none}
-    .modal-overlay.open{display:flex}
-    .modal-sheet{background:var(--modal);border-radius:24px 24px 0 0;width:100%;max-width:430px;max-height:88vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,16px)}
-    .modal-handle{display:flex;justify-content:center;padding:12px 0 4px}
-    .handle{width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.2)}
-    .app.light .handle{background:rgba(0,0,0,.15)}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:8px 20px 13px;border-bottom:1px solid var(--div)}
-    .modal-title{font-size:17px;font-weight:700;color:var(--text)}
-    .modal-sub{font-size:11px;color:var(--mute);margin-top:3px}
-    .close-btn{width:30px;height:30px;border-radius:10px;border:none;background:rgba(255,255,255,.08);cursor:pointer;font-size:14px;color:var(--sub);display:flex;align-items:center;justify-content:center}
-    .app.light .close-btn{background:rgba(0,0,0,.06)}
-    .search-wrap{padding:12px 15px 8px;position:relative}
-    .search-ico{position:absolute;left:26px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
-    .search-input{width:100%;background:var(--inp);border:1px solid var(--inpB);border-radius:13px;padding:11px 12px 11px 36px;color:var(--text);font-size:14px;outline:none;font-family:Outfit,sans-serif}
-    .modal-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-    .prov-row{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--div);cursor:pointer}
-    .prov-row:active{background:rgba(255,255,255,.04)}
-    .app.light .prov-row:active{background:rgba(0,0,0,.04)}
-    .prov-left{display:flex;align-items:center;gap:8px}
-    .prov-name{font-size:13px;font-weight:600;color:var(--text)}
-    .active-badge{background:var(--acc);border:1px solid var(--accB);border-radius:6px;padding:1px 7px;font-size:9px;font-weight:700;color:var(--gold)}
-    .prov-right{display:flex;align-items:center;gap:6px}
-    .prov-count{font-size:11px;color:var(--mute)}
-    .chevron{font-size:16px;color:var(--mute);transition:transform .2s;display:inline-block}
-    .chevron.open{transform:rotate(90deg)}
-    .city-row{display:flex;justify-content:space-between;align-items:center;padding:11px 20px 11px 32px;border-bottom:1px solid var(--div);cursor:pointer;background:rgba(255,255,255,.025)}
-    .app.light .city-row{background:rgba(0,0,0,.025)}
-    .city-row:active{opacity:.8}
-    .city-name{font-size:13px;color:var(--text)}
-    .city-name.active-city{color:var(--gold);font-weight:700}
-    .city-tz{font-size:10px;color:var(--mute);margin-top:2px}
-    .check{color:var(--gold);font-size:15px}
-    .empty-search{text-align:center;padding:30px;color:var(--mute);font-size:13px}
-
-    /* Header row for pages */
-    .page-header{padding:14px 0 12px}
-    .page-title{font-size:21px;font-weight:700;color:var(--text)}
-    .page-sub{font-size:12px;color:var(--mute);margin-top:3px}
-
-    /* Jadwal header */
-    .jadwal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 0 12px}
-    .tz-badge{background:var(--acc);border:1px solid var(--accB);border-radius:10px;padding:5px 12px}
-    .tz-text{font-size:11px;font-weight:600;color:var(--gold)}
-    .card-header-strip{padding:12px 16px;background:var(--acc);border-bottom:1px solid var(--div)}
-    .footnote{text-align:center;font-size:12px;color:var(--mute);padding:14px}
-
-    /* install banner */
-    .install-banner{display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accB);border-radius:16px;padding:13px 18px;max-width:400px;width:calc(100% - 30px);z-index:150;box-shadow:0 4px 24px rgba(0,0,0,.4);align-items:center;gap:12px}
-    .install-banner.show{display:flex}
-    .install-txt{flex:1;font-size:13px;color:var(--text)}
-    .install-txt small{color:var(--mute);font-size:11px;display:block;margin-top:2px}
-    .install-yes{background:var(--gold);border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;color:#0a0f1a;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap}
-    .install-no{background:none;border:none;font-size:18px;color:var(--mute);cursor:pointer}
-  </style>
-</head>
-<body>
-<div class="app geo" id="app">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <span class="app-title">☪ Ramadan 1447H</span>
-    <div class="top-right">
-      <span class="clock" id="clock">00:00:00</span>
-      <div class="theme-toggle" onclick="toggleTheme()">
-        <span id="theme-icon">🌙</span>
-        <div class="sw-track">
-          <div class="sw-knob on" id="sw-knob"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- ═══ HOME ═══ -->
-    <div class="page active" id="page-home">
-      <div class="hero" id="hero">
-        <div class="hero-top">
-          <div>
-            <div class="hero-date" id="hero-date">—</div>
-            <div class="hero-hijri" id="hero-hijri">—</div>
-          </div>
-          <div class="loc-btn" onclick="openModal()">
-            <span>📍</span>
-            <span class="loc-btn-text" id="loc-name-home">Tangerang</span>
-            <span style="color:var(--gold);font-size:10px">▾</span>
-          </div>
-        </div>
-        <div class="hero-center">
-          <div class="hero-lbl" id="next-label">⏳ Menuju —</div>
-          <div class="countdown" id="countdown">00:00:00</div>
-          <div id="ram-badge" style="display:none"></div>
-        </div>
-      </div>
-
-      <div class="section-label">JADWAL HARI INI</div>
-      <div class="prayer-grid" id="quick-grid"></div>
-
-      <div class="section-label">AMALAN HARIAN</div>
-      <div class="card">
-        <div class="amalan-row"><span class="am-ico">📖</span><div><div class="am-title">Tilawah Al-Qur'an</div><div class="am-sub">1 Juz per hari</div></div><div style="margin-left:auto"><div class="checkbox"></div></div></div>
-        <div class="amalan-row"><span class="am-ico">🤲</span><div><div class="am-title">Dzikir Pagi & Petang</div><div class="am-sub">Setelah Subuh & Ashar</div></div><div style="margin-left:auto"><div class="checkbox"></div></div></div>
-        <div class="amalan-row"><span class="am-ico">💝</span><div><div class="am-title">Sedekah Harian</div><div class="am-sub">Walau sedikit</div></div><div style="margin-left:auto"><div class="checkbox"></div></div></div>
-        <div class="amalan-row" style="border-bottom:none"><span class="am-ico">🕌</span><div><div class="am-title">Shalat Tarawih</div><div class="am-sub">Berjamaah di masjid</div></div><div style="margin-left:auto"><div class="checkbox"></div></div></div>
-      </div>
-
-      <div class="ayat-card">
-        <div class="ayat-ar">شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ</div>
-        <div class="ayat-tr">"Bulan Ramadhan yang di dalamnya diturunkan Al-Qur'an..." — QS. Al-Baqarah: 185</div>
-      </div>
-    </div>
-
-    <!-- ═══ JADWAL ═══ -->
-    <div class="page" id="page-jadwal">
-      <div class="jadwal-header">
-        <div>
-          <div class="page-title">Jadwal Sholat</div>
-          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;cursor:pointer" onclick="openModal()">
-            <span style="color:var(--goldD);font-size:12px">📍 <span id="loc-name-jadwal">Tangerang</span></span>
-            <span style="color:var(--gold);font-size:10px">▾</span>
-          </div>
-        </div>
-        <div class="tz-badge"><span class="tz-text" id="tz-label">WIB</span></div>
-      </div>
-
-      <div class="card" id="today-card"></div>
-
-      <div class="section-label">JADWAL 30 HARI RAMADAN 1447H</div>
-      <div class="table-wrap">
-        <div class="table-head">
-          <div class="th">#</div><div class="th">Tanggal</div><div class="th">Imsak</div><div class="th">Subuh</div><div class="th">Buka</div>
-        </div>
-        <div id="monthly-table"></div>
-      </div>
-    </div>
-
-    <!-- ═══ KAJIAN ═══ -->
-    <div class="page" id="page-kajian">
-      <div id="kajian-list-view">
-        <div class="page-header"><div class="page-title">Blog Kajian</div><div class="page-sub">Ilmu perbekalan Ramadhan</div></div>
-        <div id="kajian-list"></div>
-      </div>
-      <div id="kajian-detail-view" style="display:none">
-        <button class="back-btn" onclick="closeKajian()">← Kembali</button>
-        <div class="detail-card" id="kajian-detail"></div>
-      </div>
-    </div>
-
-    <!-- ═══ DOA ═══ -->
-    <div class="page" id="page-doa">
-      <div id="doa-list-view">
-        <div class="page-header"><div class="page-title">Kumpulan Doa</div><div class="page-sub">Doa-doa pilihan Ramadhan</div></div>
-        <div id="doa-list"></div>
-      </div>
-      <div id="doa-detail-view" style="display:none">
-        <button class="back-btn" onclick="closeDoa()">← Kembali</button>
-        <div id="doa-detail"></div>
-      </div>
-    </div>
-
-    <!-- ═══ QURAN ═══ -->
-    <div class="page" id="page-quran">
-      <div class="page-header"><div class="page-title">Al-Qur'an</div><div class="page-sub">Tilawah harian Ramadhan</div></div>
-      <div class="prog-card">
-        <div style="font-size:12px;color:var(--sub);margin-bottom:8px">Target Khatam Ramadhan</div>
-        <div class="prog-row">
-          <span style="font-size:13px;font-weight:600;color:var(--text)" id="prog-text">Belum Dimulai</span>
-          <span style="font-size:12px;font-weight:700;color:var(--blueT)" id="prog-pct">0%</span>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-      </div>
-      <div id="surah-list"></div>
-      <div class="footnote">Untuk membaca lengkap, gunakan aplikasi Al-Qur'an terpisah 📖</div>
-    </div>
-
-  </div><!-- end .content -->
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="tab-btn active" onclick="switchTab('home',this)"><span class="ico">🏠</span><span class="lbl">Beranda</span><div class="tab-dot"></div></button>
-    <button class="tab-btn" onclick="switchTab('jadwal',this)"><span class="ico">🕌</span><span class="lbl">Jadwal</span></button>
-    <button class="tab-btn" onclick="switchTab('kajian',this)"><span class="ico">📚</span><span class="lbl">Kajian</span></button>
-    <button class="tab-btn" onclick="switchTab('doa',this)"><span class="ico">🤲</span><span class="lbl">Doa</span></button>
-    <button class="tab-btn" onclick="switchTab('quran',this)"><span class="ico">📖</span><span class="lbl">Qur'an</span></button>
-  </nav>
-
-  <!-- INSTALL BANNER -->
-  <div class="install-banner" id="install-banner">
-    <div class="install-txt">
-      🌙 Install Aplikasi Ramadan
-      <small>Tambahkan ke layar utama untuk akses offline</small>
-    </div>
-    <button class="install-yes" id="install-btn">Install</button>
-    <button class="install-no" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
-  </div>
-
-  <!-- LOCATION MODAL -->
-  <div class="modal-overlay" id="loc-modal" onclick="handleOverlayClick(event)">
-    <div class="modal-sheet">
-      <div class="modal-handle"><div class="handle"></div></div>
-      <div class="modal-header">
-        <div>
-          <div class="modal-title">Pilih Wilayah</div>
-          <div class="modal-sub">📍 Saat ini: <strong style="color:var(--gold)" id="modal-current">Tangerang</strong></div>
-        </div>
-        <button class="close-btn" onclick="closeModal()">✕</button>
-      </div>
-      <div class="search-wrap">
-        <span class="search-ico">🔍</span>
-        <input type="text" class="search-input" id="loc-search" placeholder="Cari kota atau provinsi..." oninput="renderSearch()"/>
-      </div>
-      <div class="modal-list" id="modal-list"></div>
-    </div>
-  </div>
-
-</div><!-- end .app -->
-
-<script>
 // ─── Prayer Time Calculator ───────────────────────────────────────────────────
-function toRad(d){return d*Math.PI/180}function toDeg(r){return r*180/Math.PI}
-function fixHour(a){return a-24*Math.floor(a/24)}function fixAngle(a){return a-360*Math.floor(a/360)}
-function calcPrayerTimes(year,month,day,lat,lng,tz){
-  const JD=(()=>{let y=year,m=month,d=day;if(m<=2){y--;m+=12;}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5})();
-  const D=JD-2451545,g=fixAngle(357.529+0.9856*D),q=fixAngle(280.459+0.9856*D);
-  const L=fixAngle(q+1.915*Math.sin(toRad(g))+0.02*Math.sin(toRad(2*g)));
-  const e=23.439-0.00000036*D;
-  const RA=toDeg(Math.atan2(Math.cos(toRad(e))*Math.sin(toRad(L)),Math.cos(toRad(L))))/15;
-  const EqT=q/15-fixHour(RA),decl=toDeg(Math.asin(Math.sin(toRad(e))*Math.sin(toRad(L))));
-  function sat(angle,ccw){
-    const ch=(-Math.sin(toRad(angle))-Math.sin(toRad(decl))*Math.sin(toRad(lat)))/(Math.cos(toRad(decl))*Math.cos(toRad(lat)));
-    if(Math.abs(ch)>1)return null;
-    const t=toDeg(Math.acos(ch))/15;return 12-EqT+(ccw?-t:t)-lng/15+tz;
+function toRad(d) { return d * Math.PI / 180; }
+function toDeg(r) { return r * 180 / Math.PI; }
+function fixHour(a) { return a - 24 * Math.floor(a / 24); }
+function fixAngle(a) { return a - 360 * Math.floor(a / 360); }
+
+function calcPrayerTimes(year, month, day, lat, lng, timezone) {
+  const JD = (() => {
+    let y = year, m = month, d = day;
+    if (m <= 2) { y--; m += 12; }
+    const A = Math.floor(y / 100);
+    const B = 2 - A + Math.floor(A / 4);
+    return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+  })();
+  const D = JD - 2451545.0;
+  const g = fixAngle(357.529 + 0.98560028 * D);
+  const q = fixAngle(280.459 + 0.98564736 * D);
+  const L = fixAngle(q + 1.915 * Math.sin(toRad(g)) + 0.020 * Math.sin(toRad(2 * g)));
+  const e = 23.439 - 0.00000036 * D;
+  const RA = toDeg(Math.atan2(Math.cos(toRad(e)) * Math.sin(toRad(L)), Math.cos(toRad(L)))) / 15;
+  const EqT = q / 15 - fixHour(RA);
+  const decl = toDeg(Math.asin(Math.sin(toRad(e)) * Math.sin(toRad(L))));
+  function sunAngleTime(angle, ccw) {
+    const cosHour = (-Math.sin(toRad(angle)) - Math.sin(toRad(decl)) * Math.sin(toRad(lat))) /
+      (Math.cos(toRad(decl)) * Math.cos(toRad(lat)));
+    if (Math.abs(cosHour) > 1) return null;
+    const t = toDeg(Math.acos(cosHour)) / 15;
+    return 12 - EqT + (ccw ? -t : t) - lng / 15 + timezone;
   }
-  function asr(){const a=toDeg(Math.atan(1/(1+Math.tan(toRad(Math.abs(lat-decl))))));return sat(-a,false)}
-  function fmt(t){if(t==null)return'--:--';t=fixHour(t);const h=Math.floor(t),m=Math.floor((t-h)*60);return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`}
-  const dhuhr=12-EqT-lng/15+tz;
-  return{Imsak:fmt(sat(20,true)!=null?sat(20,true)-10/60:null),Subuh:fmt(sat(20,true)),Syuruk:fmt(sat(-0.833,true)),Dzuhur:fmt(dhuhr+2/60),Ashar:fmt(asr()),Maghrib:fmt(sat(-0.833,false)),Isya:fmt(sat(18,false))}
+  function asrTime(factor) {
+    const a = toDeg(Math.atan(1 / (factor + Math.tan(toRad(Math.abs(lat - decl))))));
+    return sunAngleTime(-a, false);
+  }
+  function toTime(t) {
+    if (t == null) return "--:--";
+    t = fixHour(t);
+    return `${String(Math.floor(t)).padStart(2,'0')}:${String(Math.floor((t - Math.floor(t)) * 60)).padStart(2,'0')}`;
+  }
+  // Dzuhur = solar noon (langsung, bukan lewat sudut matahari)
+  const dhuhr = 12 - EqT - lng / 15 + timezone;
+
+  return {
+    Imsak:   toTime(sunAngleTime(20, true) != null ? sunAngleTime(20, true) - 10/60 : null),
+    Subuh:   toTime(sunAngleTime(20, true)),
+    Syuruk:  toTime(sunAngleTime(-0.833, true)),
+    Dzuhur:  toTime(dhuhr + 2/60), // +2 menit ikhtiyat
+    Ashar:   toTime(asrTime(1)),
+    Maghrib: toTime(sunAngleTime(-0.833, false)),
+    Isya:    toTime(sunAngleTime(18, false)),
+  };
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const CITIES=[
-  {province:'DKI Jakarta',cities:[{name:'Jakarta Pusat',lat:-6.1744,lng:106.8294,tz:7},{name:'Jakarta Selatan',lat:-6.2615,lng:106.8106,tz:7},{name:'Jakarta Barat',lat:-6.1682,lng:106.7632,tz:7},{name:'Jakarta Timur',lat:-6.2251,lng:106.9004,tz:7},{name:'Jakarta Utara',lat:-6.1209,lng:106.9005,tz:7}]},
-  {province:'Banten',cities:[{name:'Tangerang',lat:-6.1783,lng:106.6319,tz:7},{name:'Tangerang Selatan',lat:-6.2898,lng:106.7187,tz:7},{name:'Serang',lat:-6.1201,lng:106.1503,tz:7},{name:'Cilegon',lat:-6.0171,lng:106.0039,tz:7}]},
-  {province:'Jawa Barat',cities:[{name:'Bandung',lat:-6.9175,lng:107.6191,tz:7},{name:'Bekasi',lat:-6.2349,lng:106.9896,tz:7},{name:'Depok',lat:-6.4025,lng:106.7942,tz:7},{name:'Bogor',lat:-6.5971,lng:106.806,tz:7},{name:'Cirebon',lat:-6.732,lng:108.5523,tz:7},{name:'Karawang',lat:-6.3216,lng:107.3381,tz:7}]},
-  {province:'Jawa Tengah',cities:[{name:'Semarang',lat:-6.9932,lng:110.4203,tz:7},{name:'Solo',lat:-7.5755,lng:110.8243,tz:7},{name:'Magelang',lat:-7.4797,lng:110.2177,tz:7},{name:'Pekalongan',lat:-6.8886,lng:109.6753,tz:7},{name:'Purwokerto',lat:-7.421,lng:109.2345,tz:7}]},
-  {province:'DI Yogyakarta',cities:[{name:'Yogyakarta',lat:-7.7956,lng:110.3695,tz:7},{name:'Sleman',lat:-7.7172,lng:110.3563,tz:7},{name:'Bantul',lat:-7.8916,lng:110.3295,tz:7}]},
-  {province:'Jawa Timur',cities:[{name:'Surabaya',lat:-7.2504,lng:112.7688,tz:7},{name:'Malang',lat:-7.9839,lng:112.6214,tz:7},{name:'Sidoarjo',lat:-7.4462,lng:112.718,tz:7},{name:'Kediri',lat:-7.8235,lng:112.0115,tz:7},{name:'Jember',lat:-8.1724,lng:113.7008,tz:7},{name:'Banyuwangi',lat:-8.2191,lng:114.3691,tz:7}]},
-  {province:'Aceh',cities:[{name:'Banda Aceh',lat:5.5483,lng:95.3238,tz:7},{name:'Lhokseumawe',lat:5.1802,lng:97.1501,tz:7}]},
-  {province:'Sumatra Utara',cities:[{name:'Medan',lat:3.5952,lng:98.6722,tz:7},{name:'Binjai',lat:3.6003,lng:98.4854,tz:7},{name:'Pematangsiantar',lat:2.9595,lng:99.0687,tz:7}]},
-  {province:'Sumatra Barat',cities:[{name:'Padang',lat:-0.9471,lng:100.4172,tz:7},{name:'Bukittinggi',lat:-0.3054,lng:100.3695,tz:7}]},
-  {province:'Riau',cities:[{name:'Pekanbaru',lat:0.5071,lng:101.4478,tz:7},{name:'Dumai',lat:1.6641,lng:101.4453,tz:7}]},
-  {province:'Kepulauan Riau',cities:[{name:'Batam',lat:1.1301,lng:104.0529,tz:7},{name:'Tanjung Pinang',lat:0.9189,lng:104.4653,tz:7}]},
-  {province:'Sumatra Selatan',cities:[{name:'Palembang',lat:-2.9761,lng:104.7754,tz:7},{name:'Lubuklinggau',lat:-2.9998,lng:102.862,tz:7}]},
-  {province:'Lampung',cities:[{name:'Bandar Lampung',lat:-5.3971,lng:105.2668,tz:7},{name:'Metro',lat:-5.1131,lng:105.3069,tz:7}]},
-  {province:'Kalimantan Barat',cities:[{name:'Pontianak',lat:-0.0263,lng:109.3425,tz:7},{name:'Singkawang',lat:0.9069,lng:108.9859,tz:7}]},
-  {province:'Kalimantan Selatan',cities:[{name:'Banjarmasin',lat:-3.3194,lng:114.5908,tz:8},{name:'Banjarbaru',lat:-3.442,lng:114.8306,tz:8}]},
-  {province:'Kalimantan Timur',cities:[{name:'Samarinda',lat:-0.5022,lng:117.1536,tz:8},{name:'Balikpapan',lat:-1.2379,lng:116.8529,tz:8}]},
-  {province:'Sulawesi Selatan',cities:[{name:'Makassar',lat:-5.1477,lng:119.4327,tz:8},{name:'Parepare',lat:-4.0135,lng:119.6318,tz:8},{name:'Palopo',lat:-2.993,lng:120.1943,tz:8}]},
-  {province:'Sulawesi Utara',cities:[{name:'Manado',lat:1.4748,lng:124.8421,tz:8},{name:'Bitung',lat:1.4474,lng:125.1931,tz:8}]},
-  {province:'Bali',cities:[{name:'Denpasar',lat:-8.6705,lng:115.2126,tz:8},{name:'Singaraja',lat:-8.1116,lng:115.0892,tz:8}]},
-  {province:'Nusa Tenggara Barat',cities:[{name:'Mataram',lat:-8.5833,lng:116.1167,tz:8},{name:'Bima',lat:-8.4604,lng:118.7195,tz:8}]},
-  {province:'Nusa Tenggara Timur',cities:[{name:'Kupang',lat:-10.1772,lng:123.6071,tz:8},{name:'Ende',lat:-8.8432,lng:121.662,tz:8}]},
-  {province:'Maluku',cities:[{name:'Ambon',lat:-3.6954,lng:128.1814,tz:9},{name:'Ternate',lat:0.7833,lng:127.3667,tz:9}]},
-  {province:'Papua',cities:[{name:'Jayapura',lat:-2.5337,lng:140.7181,tz:9},{name:'Sorong',lat:-0.8817,lng:131.2617,tz:9},{name:'Merauke',lat:-8.4957,lng:140.4018,tz:9}]},
+// ─── Cities Database ─────────────────────────────────────────────────────────
+const CITIES = [
+  { province:"DKI Jakarta", cities:[
+    {name:"Jakarta Pusat",lat:-6.1744,lng:106.8294,tz:7},
+    {name:"Jakarta Selatan",lat:-6.2615,lng:106.8106,tz:7},
+    {name:"Jakarta Barat",lat:-6.1682,lng:106.7632,tz:7},
+    {name:"Jakarta Timur",lat:-6.2251,lng:106.9004,tz:7},
+    {name:"Jakarta Utara",lat:-6.1209,lng:106.9005,tz:7},
+  ]},
+  { province:"Banten", cities:[
+    {name:"Tangerang",lat:-6.1783,lng:106.6319,tz:7},
+    {name:"Tangerang Selatan",lat:-6.2898,lng:106.7187,tz:7},
+    {name:"Serang",lat:-6.1201,lng:106.1503,tz:7},
+    {name:"Cilegon",lat:-6.0171,lng:106.0039,tz:7},
+  ]},
+  { province:"Jawa Barat", cities:[
+    {name:"Bandung",lat:-6.9175,lng:107.6191,tz:7},
+    {name:"Bekasi",lat:-6.2349,lng:106.9896,tz:7},
+    {name:"Depok",lat:-6.4025,lng:106.7942,tz:7},
+    {name:"Bogor",lat:-6.5971,lng:106.8060,tz:7},
+    {name:"Cirebon",lat:-6.7320,lng:108.5523,tz:7},
+    {name:"Sukabumi",lat:-6.9215,lng:106.9274,tz:7},
+    {name:"Tasikmalaya",lat:-7.3274,lng:108.2207,tz:7},
+    {name:"Karawang",lat:-6.3216,lng:107.3381,tz:7},
+  ]},
+  { province:"Jawa Tengah", cities:[
+    {name:"Semarang",lat:-6.9932,lng:110.4203,tz:7},
+    {name:"Solo (Surakarta)",lat:-7.5755,lng:110.8243,tz:7},
+    {name:"Magelang",lat:-7.4797,lng:110.2177,tz:7},
+    {name:"Salatiga",lat:-7.3306,lng:110.5080,tz:7},
+    {name:"Pekalongan",lat:-6.8886,lng:109.6753,tz:7},
+    {name:"Purwokerto",lat:-7.4210,lng:109.2345,tz:7},
+    {name:"Kudus",lat:-6.8048,lng:110.8395,tz:7},
+  ]},
+  { province:"DI Yogyakarta", cities:[
+    {name:"Yogyakarta",lat:-7.7956,lng:110.3695,tz:7},
+    {name:"Sleman",lat:-7.7172,lng:110.3563,tz:7},
+    {name:"Bantul",lat:-7.8916,lng:110.3295,tz:7},
+    {name:"Gunungkidul",lat:-7.9524,lng:110.5935,tz:7},
+  ]},
+  { province:"Jawa Timur", cities:[
+    {name:"Surabaya",lat:-7.2504,lng:112.7688,tz:7},
+    {name:"Malang",lat:-7.9839,lng:112.6214,tz:7},
+    {name:"Sidoarjo",lat:-7.4462,lng:112.7180,tz:7},
+    {name:"Kediri",lat:-7.8235,lng:112.0115,tz:7},
+    {name:"Madiun",lat:-7.6298,lng:111.5239,tz:7},
+    {name:"Jember",lat:-8.1724,lng:113.7008,tz:7},
+    {name:"Banyuwangi",lat:-8.2191,lng:114.3691,tz:7},
+    {name:"Mojokerto",lat:-7.4723,lng:112.4337,tz:7},
+  ]},
+  { province:"Aceh", cities:[
+    {name:"Banda Aceh",lat:5.5483,lng:95.3238,tz:7},
+    {name:"Lhokseumawe",lat:5.1802,lng:97.1501,tz:7},
+    {name:"Langsa",lat:4.4680,lng:97.9681,tz:7},
+  ]},
+  { province:"Sumatra Utara", cities:[
+    {name:"Medan",lat:3.5952,lng:98.6722,tz:7},
+    {name:"Binjai",lat:3.6003,lng:98.4854,tz:7},
+    {name:"Pematangsiantar",lat:2.9595,lng:99.0687,tz:7},
+    {name:"Tebing Tinggi",lat:3.3280,lng:99.1626,tz:7},
+  ]},
+  { province:"Sumatra Barat", cities:[
+    {name:"Padang",lat:-0.9471,lng:100.4172,tz:7},
+    {name:"Bukittinggi",lat:-0.3054,lng:100.3695,tz:7},
+    {name:"Payakumbuh",lat:-0.2270,lng:100.6382,tz:7},
+  ]},
+  { province:"Riau", cities:[
+    {name:"Pekanbaru",lat:0.5071,lng:101.4478,tz:7},
+    {name:"Dumai",lat:1.6641,lng:101.4453,tz:7},
+  ]},
+  { province:"Kepulauan Riau", cities:[
+    {name:"Batam",lat:1.1301,lng:104.0529,tz:7},
+    {name:"Tanjung Pinang",lat:0.9189,lng:104.4653,tz:7},
+  ]},
+  { province:"Jambi", cities:[
+    {name:"Jambi",lat:-1.6101,lng:103.6131,tz:7},
+  ]},
+  { province:"Sumatra Selatan", cities:[
+    {name:"Palembang",lat:-2.9761,lng:104.7754,tz:7},
+    {name:"Lubuklinggau",lat:-3.2998,lng:102.8620,tz:7},
+    {name:"Prabumulih",lat:-3.4272,lng:104.2353,tz:7},
+  ]},
+  { province:"Bengkulu", cities:[
+    {name:"Bengkulu",lat:-3.7928,lng:102.2608,tz:7},
+  ]},
+  { province:"Lampung", cities:[
+    {name:"Bandar Lampung",lat:-5.3971,lng:105.2668,tz:7},
+    {name:"Metro",lat:-5.1131,lng:105.3069,tz:7},
+  ]},
+  { province:"Kalimantan Barat", cities:[
+    {name:"Pontianak",lat:-0.0263,lng:109.3425,tz:7},
+    {name:"Singkawang",lat:0.9069,lng:108.9859,tz:7},
+  ]},
+  { province:"Kalimantan Tengah", cities:[
+    {name:"Palangkaraya",lat:-2.2136,lng:113.9108,tz:7},
+    {name:"Sampit",lat:-2.5372,lng:112.9525,tz:7},
+  ]},
+  { province:"Kalimantan Selatan", cities:[
+    {name:"Banjarmasin",lat:-3.3194,lng:114.5908,tz:8},
+    {name:"Banjarbaru",lat:-3.4420,lng:114.8306,tz:8},
+    {name:"Martapura",lat:-3.4175,lng:114.8574,tz:8},
+  ]},
+  { province:"Kalimantan Timur", cities:[
+    {name:"Samarinda",lat:-0.5022,lng:117.1536,tz:8},
+    {name:"Balikpapan",lat:-1.2379,lng:116.8529,tz:8},
+    {name:"Bontang",lat:0.1279,lng:117.5000,tz:8},
+  ]},
+  { province:"Kalimantan Utara", cities:[
+    {name:"Tarakan",lat:3.3000,lng:117.6333,tz:8},
+    {name:"Nunukan",lat:4.1354,lng:117.6663,tz:8},
+  ]},
+  { province:"Sulawesi Utara", cities:[
+    {name:"Manado",lat:1.4748,lng:124.8421,tz:8},
+    {name:"Bitung",lat:1.4474,lng:125.1931,tz:8},
+    {name:"Tomohon",lat:1.3229,lng:124.8378,tz:8},
+  ]},
+  { province:"Sulawesi Tengah", cities:[
+    {name:"Palu",lat:-0.8917,lng:119.8707,tz:8},
+    {name:"Luwuk",lat:-0.9520,lng:122.7919,tz:8},
+  ]},
+  { province:"Sulawesi Selatan", cities:[
+    {name:"Makassar",lat:-5.1477,lng:119.4327,tz:8},
+    {name:"Parepare",lat:-4.0135,lng:119.6318,tz:8},
+    {name:"Palopo",lat:-2.9930,lng:120.1943,tz:8},
+    {name:"Gowa",lat:-5.2917,lng:119.5838,tz:8},
+  ]},
+  { province:"Sulawesi Tenggara", cities:[
+    {name:"Kendari",lat:-3.9985,lng:122.5127,tz:8},
+    {name:"Bau-bau",lat:-5.4679,lng:122.6068,tz:8},
+  ]},
+  { province:"Gorontalo", cities:[
+    {name:"Gorontalo",lat:0.5435,lng:123.0568,tz:8},
+  ]},
+  { province:"Sulawesi Barat", cities:[
+    {name:"Mamuju",lat:-2.6741,lng:118.8885,tz:8},
+  ]},
+  { province:"Bali", cities:[
+    {name:"Denpasar",lat:-8.6705,lng:115.2126,tz:8},
+    {name:"Singaraja",lat:-8.1116,lng:115.0892,tz:8},
+    {name:"Tabanan",lat:-8.5362,lng:115.1253,tz:8},
+  ]},
+  { province:"Nusa Tenggara Barat", cities:[
+    {name:"Mataram",lat:-8.5833,lng:116.1167,tz:8},
+    {name:"Bima",lat:-8.4604,lng:118.7195,tz:8},
+    {name:"Sumbawa Besar",lat:-8.4892,lng:117.4178,tz:8},
+  ]},
+  { province:"Nusa Tenggara Timur", cities:[
+    {name:"Kupang",lat:-10.1772,lng:123.6071,tz:8},
+    {name:"Ende",lat:-8.8432,lng:121.6620,tz:8},
+    {name:"Maumere",lat:-8.6190,lng:122.2135,tz:8},
+  ]},
+  { province:"Maluku", cities:[
+    {name:"Ambon",lat:-3.6954,lng:128.1814,tz:9},
+    {name:"Ternate",lat:0.7833,lng:127.3667,tz:9},
+    {name:"Tual",lat:-5.6389,lng:132.7500,tz:9},
+  ]},
+  { province:"Maluku Utara", cities:[
+    {name:"Ternate",lat:0.7833,lng:127.3667,tz:9},
+    {name:"Tidore",lat:0.6936,lng:127.4126,tz:9},
+  ]},
+  { province:"Papua Barat", cities:[
+    {name:"Manokwari",lat:-0.8611,lng:134.0622,tz:9},
+    {name:"Sorong",lat:-0.8817,lng:131.2617,tz:9},
+  ]},
+  { province:"Papua", cities:[
+    {name:"Jayapura",lat:-2.5337,lng:140.7181,tz:9},
+    {name:"Merauke",lat:-8.4957,lng:140.4018,tz:9},
+    {name:"Timika",lat:-4.5333,lng:136.8833,tz:9},
+  ]},
 ];
 
-const KAJIAN=[
-  {id:1,title:"Keutamaan 10 Hari Pertama Ramadhan",category:"Amalan",date:"18 Feb 2026",readTime:"5 menit",icon:"🌙",excerpt:"Sepuluh hari pertama Ramadhan merupakan hari-hari penuh rahmat Allah SWT. Di saat inilah pintu-pintu langit terbuka lebar...",content:"Allah SWT telah membagi Ramadhan menjadi tiga bagian yang masing-masing memiliki keistimewaan. Sepuluh hari pertama adalah hari-hari yang Allah curahkan rahmat-Nya kepada seluruh hamba.\n\nPerbanyaklah shalat sunnah, tilawah Al-Qur'an, dan sedekah di hari-hari penuh berkah ini. Rasulullah ﷺ senantiasa meningkatkan amal ibadahnya sepanjang Ramadhan."},
-  {id:2,title:"Rahasia Lailatul Qadar yang Tersembunyi",category:"Ilmu",date:"17 Feb 2026",readTime:"7 menit",icon:"✨",excerpt:"Lailatul Qadar adalah malam yang lebih baik dari seribu bulan. Malam ini tersembunyi di antara malam-malam ganjil...",content:"Allah SWT merahasiakan malam Lailatul Qadar agar hamba-Nya bersungguh-sungguh mencarinya di setiap malam.\n\nRasulullah ﷺ menganjurkan untuk banyak berdoa: 'Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'anni' pada setiap malam ganjil di 10 hari terakhir Ramadhan."},
-  {id:3,title:"Panduan Lengkap I'tikaf di Masjid",category:"Fiqih",date:"16 Feb 2026",readTime:"8 menit",icon:"🕌",excerpt:"I'tikaf adalah berdiam diri di masjid dengan niat ibadah. Amalan ini sangat dianjurkan pada 10 hari terakhir...",content:"I'tikaf memiliki syarat-syarat tertentu: berakal, suci dari hadas besar, dan berada di masjid. Selama i'tikaf, dianjurkan memperbanyak dzikir, doa, dan tilawah.\n\nNabi ﷺ senantiasa beri'tikaf pada sepuluh hari terakhir Ramadhan hingga beliau wafat."},
-  {id:4,title:"Menghidupkan Malam dengan Qiyamul Lail",category:"Amalan",date:"15 Feb 2026",readTime:"4 menit",icon:"🌟",excerpt:"Shalat malam di bulan Ramadhan memiliki keutamaan yang luar biasa. Barang siapa mendirikannya dengan iman...",content:"Qiyamul Lail di bulan Ramadhan bisa dilakukan mulai dari dua rakaat hingga sebelas rakaat (witir termasuk). Waktu terbaiknya adalah sepertiga malam terakhir.\n\nRasulullah ﷺ bersabda: 'Barang siapa mendirikan shalat malam di bulan Ramadhan karena iman dan mengharap pahala, maka diampuni dosa-dosanya yang telah lalu.' (HR. Bukhari & Muslim)"},
-  {id:5,title:"Adab dan Sunnah Berbuka Puasa",category:"Sunnah",date:"14 Feb 2026",readTime:"3 menit",icon:"🌅",excerpt:"Berbuka puasa adalah salah satu kegembiraan bagi orang yang berpuasa. Terdapat beberapa adab yang diajarkan...",content:"Sunnah berbuka: menyegerakan berbuka saat azan maghrib, berbuka dengan kurma atau air, membaca doa berbuka, dan makan secukupnya.\n\nRasulullah ﷺ bersabda: 'Manusia senantiasa dalam kebaikan selama menyegerakan berbuka puasa.' (HR. Bukhari & Muslim)"},
+// ─── Content ──────────────────────────────────────────────────────────────────
+const kajianData = [
+  {id:1,title:"Keutamaan 10 Hari Pertama Ramadhan",category:"Amalan",date:"18 Feb 2026",readTime:"5 menit",excerpt:"Sepuluh hari pertama Ramadhan merupakan hari-hari penuh rahmat Allah SWT. Di saat inilah pintu-pintu langit terbuka lebar untuk menerima doa...",content:"Allah SWT telah membagi Ramadhan menjadi tiga bagian yang masing-masing memiliki keistimewaan. Sepuluh hari pertama adalah hari-hari yang Allah curahkan rahmat-Nya kepada seluruh hamba. Di saat inilah pintu-pintu langit terbuka lebar untuk menerima doa dan ibadah kita. Perbanyaklah shalat sunnah, tilawah Al-Qur'an, dan sedekah di hari-hari penuh berkah ini.",icon:"🌙",accent:"#d4af37"},
+  {id:2,title:"Rahasia Lailatul Qadar yang Tersembunyi",category:"Ilmu",date:"17 Feb 2026",readTime:"7 menit",excerpt:"Lailatul Qadar adalah malam yang lebih baik dari seribu bulan. Malam ini tersembunyi di antara malam-malam ganjil sepuluh hari terakhir...",content:"Allah SWT merahasiakan malam Lailatul Qadar agar hamba-Nya bersungguh-sungguh mencarinya di setiap malam. Tanda-tandanya antara lain: udara yang sejuk, malam yang tenang, dan matahari yang terbit dengan sinar yang lemah lembut keesokan harinya. Rasulullah ﷺ menganjurkan untuk banyak berdoa dengan doa khusus Lailatul Qadar pada setiap malam ganjil di 10 hari terakhir.",icon:"✨",accent:"#a78bfa"},
+  {id:3,title:"Panduan Lengkap I'tikaf di Masjid",category:"Fiqih",date:"16 Feb 2026",readTime:"8 menit",excerpt:"I'tikaf adalah berdiam diri di masjid dengan niat ibadah. Amalan ini sangat dianjurkan terutama pada 10 hari terakhir Ramadhan...",content:"I'tikaf memiliki syarat-syarat tertentu: berakal, suci dari hadas besar, dan berada di masjid. Selama i'tikaf, dianjurkan memperbanyak dzikir, doa, tilawah, dan menjauhi hal-hal yang tidak bermanfaat. Nabi ﷺ senantiasa beri'tikaf pada sepuluh hari terakhir Ramadhan hingga beliau wafat.",icon:"🕌",accent:"#34d399"},
+  {id:4,title:"Menghidupkan Malam dengan Qiyamul Lail",category:"Amalan",date:"15 Feb 2026",readTime:"4 menit",excerpt:"Shalat malam di bulan Ramadhan memiliki keutamaan yang luar biasa. Barang siapa mendirikannya dengan iman dan ikhlas...",content:"Qiyamul Lail atau shalat malam di bulan Ramadhan bisa dilakukan mulai dari dua rakaat hingga sebelas rakaat (witir termasuk). Waktu terbaiknya adalah sepertiga malam terakhir, sekitar pukul 02.00-03.30 WIB. Rasulullah ﷺ bersabda: 'Barang siapa mendirikan shalat malam di bulan Ramadhan karena iman dan mengharap pahala, maka diampuni dosa-dosanya yang telah lalu.'",icon:"🌟",accent:"#60a5fa"},
+  {id:5,title:"Adab dan Sunnah Berbuka Puasa",category:"Sunnah",date:"14 Feb 2026",readTime:"3 menit",excerpt:"Berbuka puasa adalah salah satu kegembiraan bagi orang yang berpuasa. Terdapat beberapa adab yang diajarkan Rasulullah ﷺ...",content:"Sunnah berbuka puasa: menyegerakan berbuka begitu azan maghrib berkumandang, berbuka dengan kurma atau air, membaca doa berbuka, dan makan secukupnya agar tidak berlebihan. Rasulullah ﷺ bersabda: 'Manusia senantiasa dalam kebaikan selama mereka menyegerakan berbuka.'",icon:"🌅",accent:"#fb923c"},
 ];
 
-const DOA=[
+const doaData = [
   {id:1,title:"Doa Berbuka Puasa",arabic:"اللَّهُمَّ لَكَ صُمْتُ وَبِكَ آمَنْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ",latin:"Allahumma laka shumtu wa bika aamantu wa 'ala rizqika afthartu",arti:"Ya Allah, karena-Mu aku berpuasa, kepada-Mu aku beriman, dan dengan rezeki-Mu aku berbuka."},
   {id:2,title:"Doa Niat Puasa",arabic:"نَوَيْتُ صَوْمَ غَدٍ عَنْ أَدَاءِ فَرْضِ شَهْرِ رَمَضَانَ هَذِهِ السَّنَةِ لِلهِ تَعَالَى",latin:"Nawaitu shauma ghadin 'an adaa'i fardhi syahri Ramadhana haadzihis sanati lillahi ta'alaa",arti:"Saya niat berpuasa esok hari untuk menunaikan kewajiban puasa di bulan Ramadhan tahun ini karena Allah Ta'ala."},
   {id:3,title:"Doa Lailatul Qadar",arabic:"اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي",latin:"Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'anni",arti:"Ya Allah, sesungguhnya Engkau Maha Pemaaf dan mencintai maaf, maka maafkanlah aku."},
@@ -486,377 +241,536 @@ const DOA=[
   {id:6,title:"Doa Malam Ganjil",arabic:"اللَّهُمَّ إِنَّكَ عَفُوٌّ كَرِيمٌ تُحِبُّ الْعَفْوَ فَاعْفُ عَنَّا",latin:"Allahumma innaka 'afuwwun kariim tuhibbul 'afwa fa'fu 'anna",arti:"Ya Allah, sesungguhnya Engkau Maha Pemaaf lagi Maha Mulia, mencintai maaf, maka maafkanlah kami."},
 ];
 
-const SURAH=[{no:1,name:"Al-Fatihah",ar:"الفاتحة",ayat:7,juz:1},{no:2,name:"Al-Baqarah",ar:"البقرة",ayat:286,juz:1},{no:3,name:"Ali 'Imran",ar:"آل عمران",ayat:200,juz:3},{no:4,name:"An-Nisa",ar:"النساء",ayat:176,juz:4},{no:5,name:"Al-Ma'idah",ar:"المائدة",ayat:120,juz:6},{no:36,name:"Yasin",ar:"يس",ayat:83,juz:22},{no:55,name:"Ar-Rahman",ar:"الرحمن",ayat:78,juz:27},{no:67,name:"Al-Mulk",ar:"الملك",ayat:30,juz:29},{no:112,name:"Al-Ikhlas",ar:"الإخلاص",ayat:4,juz:30},{no:113,name:"Al-Falaq",ar:"الفلق",ayat:5,juz:30},{no:114,name:"An-Nas",ar:"الناس",ayat:6,juz:30}];
+const PRAYER_ICONS = {Imsak:"🌙",Subuh:"🌅",Syuruk:"☀️",Dzuhur:"🌤️",Ashar:"⛅",Maghrib:"🌇",Isya:"🌃"};
+const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-const PRAYER_ICONS={Imsak:'🌙',Subuh:'🌅',Syuruk:'☀️',Dzuhur:'🌤️',Ashar:'⛅',Maghrib:'🌇',Isya:'🌃'};
-const MONTHS_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
-// ─── State ────────────────────────────────────────────────────────────────────
-let isDark = true;
-let location = CITIES[1].cities[0]; // Tangerang
-let times = null;
-let nextPrayer = '';
-let expandedProv = null;
+function getHijri() {
+  try { return new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(new Date()); }
+  catch { return "Sya'ban 1447 H"; }
+}
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
-function toggleTheme() {
-  isDark = !isDark;
-  const app = document.getElementById('app');
-  app.classList.toggle('light', !isDark);
-  document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
-  document.getElementById('sw-knob').classList.toggle('on', isDark);
-  document.getElementById('meta-theme').content = isDark ? '#0a0f1a' : '#f7f2e8';
-}
-
-// ─── Tab navigation ───────────────────────────────────────────────────────────
-function switchTab(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active');
-    const dot = b.querySelector('.tab-dot');
-    if (dot) dot.remove();
-  });
-  document.getElementById('page-' + id).classList.add('active');
-  btn.classList.add('active');
-  if (!btn.querySelector('.tab-dot')) {
-    const dot = document.createElement('div');
-    dot.className = 'tab-dot';
-    btn.appendChild(dot);
+const THEMES = {
+  dark: {
+    bg:'#0a0f1a', bg2:'#111827',
+    card:'rgba(255,255,255,0.045)', cardB:'rgba(255,255,255,0.09)',
+    text:'#f0ede6', textSub:'rgba(240,237,230,0.55)', textMute:'rgba(240,237,230,0.32)',
+    nav:'rgba(8,13,24,0.96)', navB:'rgba(212,175,55,0.15)',
+    input:'rgba(255,255,255,0.07)', inputB:'rgba(255,255,255,0.13)',
+    div:'rgba(255,255,255,0.06)',
+    heroBg:'linear-gradient(135deg,#0d1a2e 0%,#162035 50%,#0f1e0e 100%)',
+    gold:'#d4af37', goldText:'#f5e198', goldDim:'rgba(212,175,55,0.8)',
+    accent:'rgba(212,175,55,0.15)', accentB:'rgba(212,175,55,0.35)',
+    modalBg:'#0d1728', modalCard:'rgba(255,255,255,0.04)',
+    switchBg:'rgba(212,175,55,0.25)', switchKnob:'#d4af37', switchOn:true,
+    prov:'rgba(255,255,255,0.025)', provActive:'rgba(255,255,255,0.05)',
+    countdownColor:'#f5e198',
+    geo:"rgba(212,175,55,0.06)",
+    progressBg:'rgba(255,255,255,0.09)',
+    blueBg:'rgba(32,100,180,0.14)', blueB:'rgba(100,150,255,0.15)',
+    greenBg:'rgba(20,80,45,0.22)', greenB:'rgba(32,178,95,0.17)',
+    subuhGradient:'rgba(212,175,55,0.09)',
+    sectionLabelColor:'rgba(240,237,230,0.38)',
+  },
+  light: {
+    bg:'#f7f2e8', bg2:'#fefcf7',
+    card:'rgba(255,255,255,0.88)', cardB:'rgba(180,140,50,0.16)',
+    text:'#1c1408', textSub:'rgba(28,20,8,0.58)', textMute:'rgba(28,20,8,0.36)',
+    nav:'rgba(251,248,240,0.97)', navB:'rgba(180,140,50,0.22)',
+    input:'rgba(255,255,255,0.75)', inputB:'rgba(160,120,40,0.22)',
+    div:'rgba(160,120,40,0.1)',
+    heroBg:'linear-gradient(135deg,#fffdf4 0%,#fffaec 50%,#f7f4e4 100%)',
+    gold:'#b37f00', goldText:'#8a6000', goldDim:'rgba(140,100,0,0.85)',
+    accent:'rgba(180,140,50,0.1)', accentB:'rgba(160,120,40,0.3)',
+    modalBg:'#fefcf7', modalCard:'rgba(0,0,0,0.025)',
+    switchBg:'rgba(160,120,40,0.18)', switchKnob:'#b37f00', switchOn:false,
+    prov:'rgba(0,0,0,0.02)', provActive:'rgba(0,0,0,0.04)',
+    countdownColor:'#8a6000',
+    geo:"rgba(160,120,40,0.08)",
+    progressBg:'rgba(0,0,0,0.08)',
+    blueBg:'rgba(32,100,180,0.07)', blueB:'rgba(100,150,255,0.18)',
+    greenBg:'rgba(20,120,60,0.08)', greenB:'rgba(32,160,80,0.18)',
+    subuhGradient:'rgba(180,140,50,0.07)',
+    sectionLabelColor:'rgba(28,20,8,0.4)',
   }
-  // Scroll to top
-  document.querySelector('.content').scrollTo(0, 0);
-}
+};
 
-// ─── Clock ────────────────────────────────────────────────────────────────────
-function tickClock() {
-  const n = new Date();
-  document.getElementById('clock').textContent =
-    `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
-  // Countdown
-  if (times) {
-    const ORDER = ['Imsak','Subuh','Dzuhur','Ashar','Maghrib','Isya'];
-    const cur = n.getHours()*60 + n.getMinutes();
-    let np = ORDER.find(p => { const [h,m]=times[p].split(':').map(Number); return h*60+m > cur; }) || 'Imsak';
-    nextPrayer = np;
-    const [nh,nm] = np === 'Imsak' ? (()=>{ const [h,m]=times['Imsak'].split(':').map(Number); return [h+24,m]; })() : times[np].split(':').map(Number);
-    const diff = nh*60+nm - cur;
-    const h=Math.floor(diff/60), m=diff%60, s=59-n.getSeconds();
-    document.getElementById('countdown').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    document.getElementById('next-label').textContent = np==='Maghrib' ? '⏳ Menuju Waktu Berbuka' : np==='Imsak' ? '⏳ Menuju Imsak' : `⏳ Menuju ${np}`;
-    // Update quick grid highlight
-    document.querySelectorAll('.prayer-card').forEach(el => {
-      el.classList.toggle('next', el.dataset.name === nextPrayer);
-    });
-    // Update full prayer list highlight
-    document.querySelectorAll('.pr-row').forEach(el => {
-      el.classList.toggle('next-row', el.dataset.name === nextPrayer);
-    });
+const SURAH_LIST = [
+  {no:1,name:"Al-Fatihah",ar:"الفاتحة",ayat:7,juz:1},
+  {no:2,name:"Al-Baqarah",ar:"البقرة",ayat:286,juz:1},
+  {no:3,name:"Ali 'Imran",ar:"آل عمران",ayat:200,juz:3},
+  {no:4,name:"An-Nisa",ar:"النساء",ayat:176,juz:4},
+  {no:5,name:"Al-Ma'idah",ar:"المائدة",ayat:120,juz:6},
+  {no:6,name:"Al-An'am",ar:"الأنعام",ayat:165,juz:7},
+  {no:7,name:"Al-A'raf",ar:"الأعراف",ayat:206,juz:8},
+  {no:8,name:"Al-Anfal",ar:"الأنفال",ayat:75,juz:9},
+  {no:9,name:"At-Taubah",ar:"التوبة",ayat:129,juz:10},
+  {no:10,name:"Yunus",ar:"يونس",ayat:109,juz:11},
+  {no:36,name:"Yasin",ar:"يس",ayat:83,juz:22},
+  {no:55,name:"Ar-Rahman",ar:"الرحمن",ayat:78,juz:27},
+  {no:67,name:"Al-Mulk",ar:"الملك",ayat:30,juz:29},
+  {no:112,name:"Al-Ikhlas",ar:"الإخلاص",ayat:4,juz:30},
+  {no:113,name:"Al-Falaq",ar:"الفلق",ayat:5,juz:30},
+  {no:114,name:"An-Nas",ar:"الناس",ayat:6,juz:30},
+];
+
+export default function RamadanApp() {
+  const [isDark, setIsDark] = useState(true);
+  const T = isDark ? THEMES.dark : THEMES.light;
+
+  const [tab, setTab] = useState("home");
+  const [loc, setLoc] = useState(CITIES[1].cities[0]); // Tangerang
+  const [times, setTimes] = useState(null);
+  const [now, setNow] = useState(new Date());
+  const [countdown, setCountdown] = useState("00:00:00");
+  const [nextPrayer, setNextPrayer] = useState("");
+  const [selKajian, setSelKajian] = useState(null);
+  const [selDoa, setSelDoa] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [showLoc, setShowLoc] = useState(false);
+  const [locQ, setLocQ] = useState("");
+  const [expProv, setExpProv] = useState(null);
+  const [ramDay, setRamDay] = useState(null);
+  const [themeFlash, setThemeFlash] = useState(false);
+
+  useEffect(() => {
+    const start = new Date(2026,1,28);
+    const diff = Math.floor((new Date() - start) / 86400000);
+    setRamDay(diff >= 0 && diff < 30 ? diff+1 : null);
+  }, []);
+
+  useEffect(() => {
+    const d = new Date();
+    setTimes(calcPrayerTimes(d.getFullYear(), d.getMonth()+1, d.getDate(), loc.lat, loc.lng, loc.tz));
+  }, [loc]);
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      const n = new Date();
+      setNow(n);
+      if (!times) return;
+      const ORDER = ["Imsak","Subuh","Dzuhur","Ashar","Maghrib","Isya"];
+      const cur = n.getHours()*60 + n.getMinutes();
+      let next = ORDER.find(p => { const [h,m]=times[p].split(":").map(Number); return h*60+m > cur; });
+      if (!next) next = "Imsak";
+      setNextPrayer(next);
+      const [nh,nm] = (() => {
+        if (next === "Imsak") { const [h,m]=times["Imsak"].split(":").map(Number); return [h+24,m]; }
+        return times[next].split(":").map(Number);
+      })();
+      const diff = (nh*60+nm) - cur;
+      const h=Math.floor(diff/60), m=diff%60, s=59-n.getSeconds();
+      setCountdown(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [times]);
+
+  function toggleTheme() {
+    setThemeFlash(true);
+    setTimeout(() => setThemeFlash(false), 350);
+    setIsDark(d => !d);
   }
-}
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-function init() {
-  // Date
-  const n = new Date();
-  document.getElementById('hero-date').textContent = `${n.getDate()} ${MONTHS_ID[n.getMonth()]} ${n.getFullYear()}`;
-  try {
-    document.getElementById('hero-hijri').textContent = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(n);
-  } catch(e) { document.getElementById('hero-hijri').textContent = "Sya'ban 1447 H"; }
+  const todayStr = `${now.getDate()} ${MONTHS_ID[now.getMonth()]} ${now.getFullYear()}`;
+  const clockStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const isNext = n => n === nextPrayer;
 
-  // Ramadan day
-  const ramStart = new Date(2026,1,28);
-  const diff = Math.floor((n - ramStart)/86400000);
-  const ramDay = diff>=0 && diff<30 ? diff+1 : null;
-  if (ramDay) {
-    const badge = document.getElementById('ram-badge');
-    badge.style.display = 'block';
-    badge.innerHTML = `<div class="ram-badge">Ramadan Hari ke-${ramDay}</div>`;
-    // Progress
-    const pct = Math.round((ramDay/30)*100);
-    document.getElementById('prog-text').textContent = `Hari ${ramDay} — Juz ${ramDay}/30`;
-    document.getElementById('prog-pct').textContent = `${pct}%`;
-    document.getElementById('prog-fill').style.width = pct + '%';
-  }
-
-  updateLocation();
-  renderKajian();
-  renderDoa();
-  renderSurah();
-  setInterval(tickClock, 1000);
-  tickClock();
-}
-
-function updateLocation() {
-  // Prayer times today
-  const d = new Date();
-  times = calcPrayerTimes(d.getFullYear(), d.getMonth()+1, d.getDate(), location.lat, location.lng, location.tz);
-
-  // Update location labels
-  ['loc-name-home','loc-name-jadwal','modal-current'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = location.name;
-  });
-  const tzEl = document.getElementById('tz-label');
-  if (tzEl) tzEl.textContent = 'WIB' + (location.tz>7 ? `+${location.tz-7}` : '');
-
-  renderQuickGrid();
-  renderTodayCard();
-  renderMonthlyTable();
-}
-
-// ─── Quick prayer grid ────────────────────────────────────────────────────────
-function renderQuickGrid() {
-  const grid = document.getElementById('quick-grid');
-  grid.innerHTML = ['Imsak','Subuh','Maghrib','Isya'].map(name => `
-    <div class="prayer-card${name===nextPrayer?' next':''}" data-name="${name}">
-      <div class="pc-top">
-        <span style="font-size:18px">${PRAYER_ICONS[name]}</span>
-        ${name===nextPrayer?'<span class="next-badge">NEXT</span>':''}
-      </div>
-      <div class="pc-name">${name}</div>
-      <div class="pc-time">${times[name]}</div>
-    </div>
-  `).join('');
-}
-
-// ─── Today card ───────────────────────────────────────────────────────────────
-function renderTodayCard() {
-  const n = new Date();
-  const todayStr = `${n.getDate()} ${MONTHS_ID[n.getMonth()]} ${n.getFullYear()}`;
-  const card = document.getElementById('today-card');
-  card.innerHTML = `
-    <div class="card-header-strip"><span style="color:var(--gold);font-weight:600;font-size:12px">Hari Ini — ${todayStr}</span></div>
-    ${Object.entries(times).map(([name,time]) => `
-      <div class="pr-row${name===nextPrayer?' next-row':''}" data-name="${name}">
-        <span class="pr-ico">${PRAYER_ICONS[name]||'🌙'}</span>
-        <span class="pr-name">${name}</span>
-        ${name===nextPrayer?'<span class="next-badge" style="margin-right:10px">NEXT</span>':''}
-        <span class="pr-time">${time}</span>
-      </div>
-    `).join('')}
-  `;
-}
-
-// ─── Monthly table ────────────────────────────────────────────────────────────
-function renderMonthlyTable() {
-  const ramStart = new Date(2026,1,28);
-  const todayDiff = Math.floor((new Date()-ramStart)/86400000);
-  const ramDay = todayDiff>=0&&todayDiff<30?todayDiff+1:null;
-  let html = '';
-  for (let i=0; i<30; i++) {
+  const jadwal30 = Array.from({length:30},(_,i)=>{
     const d = new Date(2026,1,28+i);
-    const t = calcPrayerTimes(d.getFullYear(),d.getMonth()+1,d.getDate(),location.lat,location.lng,location.tz);
-    const today = ramDay===i+1;
-    const dateStr = `${d.getDate()} ${MONTHS_ID[d.getMonth()]}`;
-    html += `<div class="tr${today?' today-row':''}">
-      <div class="td num">${i+1}</div>
-      <div class="td">${dateStr}</div>
-      <div class="td" style="font-family:monospace">${t.Imsak}</div>
-      <div class="td" style="font-family:monospace">${t.Subuh}</div>
-      <div class="td buka" style="font-family:monospace">${t.Maghrib}</div>
-    </div>`;
-  }
-  document.getElementById('monthly-table').innerHTML = html;
-}
-
-// ─── Kajian ───────────────────────────────────────────────────────────────────
-function renderKajian() {
-  document.getElementById('kajian-list').innerHTML = KAJIAN.map(item => `
-    <div class="kajian-card" onclick="openKajian(${item.id})">
-      <div class="kjt">
-        <div class="kj-top">
-          <span style="font-size:26px">${item.icon}</span>
-          <span class="cat-badge">${item.category}</span>
-        </div>
-        <div class="kj-title">${item.title}</div>
-      </div>
-      <div class="kjb">
-        <div class="kj-exc">${item.excerpt}</div>
-        <div class="kj-footer">
-          <span class="kj-meta">📅 ${item.date} · ⏱ ${item.readTime}</span>
-          <span class="kj-read">Baca →</span>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-function openKajian(id) {
-  const item = KAJIAN.find(k=>k.id===id);
-  document.getElementById('kajian-list-view').style.display='none';
-  document.getElementById('kajian-detail-view').style.display='block';
-  document.getElementById('kajian-detail').innerHTML = `
-    <div class="detail-head">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px">
-        <span style="font-size:28px">${item.icon}</span>
-        <span style="background:var(--acc);border:1px solid var(--accB);border-radius:10px;padding:3px 11px;color:var(--gold);font-size:10px;font-weight:700">${item.category}</span>
-      </div>
-      <div style="font-size:18px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:7px">${item.title}</div>
-      <div style="font-size:11px;color:var(--mute)">📅 ${item.date} · ⏱ ${item.readTime}</div>
-    </div>
-    <div class="detail-body"><div class="detail-content">${item.content}</div></div>
-  `;
-  document.querySelector('.content').scrollTo(0,0);
-}
-function closeKajian() {
-  document.getElementById('kajian-list-view').style.display='block';
-  document.getElementById('kajian-detail-view').style.display='none';
-}
-
-// ─── Doa ─────────────────────────────────────────────────────────────────────
-function renderDoa() {
-  document.getElementById('doa-list').innerHTML = DOA.map(doa => `
-    <div class="doa-card" onclick="openDoa(${doa.id})">
-      <div class="doa-top"><span class="doa-title">${doa.title}</span><span style="color:var(--gold);font-size:18px">›</span></div>
-      <div class="doa-ar">${doa.arabic}</div>
-      <div class="doa-arti">${doa.arti}</div>
-    </div>
-  `).join('');
-}
-function openDoa(id) {
-  const doa = DOA.find(d=>d.id===id);
-  document.getElementById('doa-list-view').style.display='none';
-  document.getElementById('doa-detail-view').style.display='block';
-  document.getElementById('doa-detail').innerHTML = `
-    <div style="border:1px solid var(--accB);border-radius:20px;overflow:hidden">
-      <div style="padding:17px 20px;background:var(--acc)">
-        <div style="font-size:17px;font-weight:700;color:var(--cnt)">${doa.title}</div>
-      </div>
-      <div style="padding:19px;background:var(--card)">
-        <div class="arabic-box"><div class="arabic-full">${doa.arabic}</div></div>
-        <div class="field-label">LATIN</div>
-        <div class="latin-txt">${doa.latin}</div>
-        <div class="field-label">ARTINYA</div>
-        <div class="arti-txt">${doa.arti}</div>
-        <button class="copy-btn" id="copy-btn-${doa.id}" onclick="copyDoa(${doa.id})">📋 Salin Doa</button>
-      </div>
-    </div>
-  `;
-  document.querySelector('.content').scrollTo(0,0);
-}
-function closeDoa() {
-  document.getElementById('doa-list-view').style.display='block';
-  document.getElementById('doa-detail-view').style.display='none';
-}
-function copyDoa(id) {
-  const doa = DOA.find(d=>d.id===id);
-  navigator.clipboard.writeText(`${doa.arabic}\n\n${doa.latin}\n\nArtinya: ${doa.arti}`).then(()=>{
-    const btn = document.getElementById('copy-btn-'+id);
-    btn.textContent = '✓ Berhasil Disalin!';
-    btn.classList.add('copied');
-    setTimeout(()=>{ btn.textContent='📋 Salin Doa'; btn.classList.remove('copied'); }, 2200);
+    const t = calcPrayerTimes(d.getFullYear(),d.getMonth()+1,d.getDate(),loc.lat,loc.lng,loc.tz);
+    return {day:i+1,date:`${d.getDate()} ${MONTHS_ID[d.getMonth()]}`,imsak:t.Imsak,subuh:t.Subuh,maghrib:t.Maghrib,isya:t.Isya};
   });
-}
 
-// ─── Surah ────────────────────────────────────────────────────────────────────
-function renderSurah() {
-  document.getElementById('surah-list').innerHTML = SURAH.map(s => `
-    <div class="surah-row">
-      <div class="surah-num"><span style="color:var(--goldD);font-size:11px;font-weight:700">${s.no}</span></div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${s.name}</div><div style="font-size:11px;color:var(--mute);margin-top:1px">${s.ayat} Ayat · Juz ${s.juz}</div></div>
-      <div class="surah-ar">${s.ar}</div>
-    </div>
-  `).join('');
-}
+  const filtered = locQ.trim()
+    ? CITIES.flatMap(p=>p.cities.filter(c=>c.name.toLowerCase().includes(locQ.toLowerCase())).map(c=>({...c,province:p.province})))
+    : [];
 
-// ─── Location Modal ───────────────────────────────────────────────────────────
-function openModal() {
-  document.getElementById('loc-modal').classList.add('open');
-  renderProvList();
-}
-function closeModal() {
-  document.getElementById('loc-modal').classList.remove('open');
-  document.getElementById('loc-search').value = '';
-  expandedProv = null;
-}
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('loc-modal')) closeModal();
-}
+  function copyDoa(doa) {
+    navigator.clipboard.writeText(`${doa.arabic}\n\n${doa.latin}\n\nArtinya: ${doa.arti}`).then(()=>{
+      setCopiedId(doa.id); setTimeout(()=>setCopiedId(null),2000);
+    });
+  }
 
-function renderProvList() {
-  const list = document.getElementById('modal-list');
-  list.innerHTML = CITIES.map(prov => {
-    const isExp = expandedProv === prov.province;
-    const hasActive = prov.cities.some(c=>c.name===location.name);
-    return `
-      <div class="prov-row" onclick="toggleProv('${prov.province}')">
-        <div class="prov-left">
-          <span class="prov-name">${prov.province}</span>
-          ${hasActive?'<span class="active-badge">AKTIF</span>':''}
-        </div>
-        <div class="prov-right">
-          <span class="prov-count">${prov.cities.length} kota</span>
-          <span class="chevron${isExp?' open':''}">›</span>
-        </div>
-      </div>
-      ${isExp ? prov.cities.map(city => `
-        <div class="city-row" onclick="selectCity('${prov.province}','${city.name}')">
-          <div>
-            <div class="city-name${city.name===location.name?' active-city':''}">${city.name}</div>
-            <div class="city-tz">Zona WIB${city.tz>7?`+${city.tz-7}`:''}</div>
+  const geoSvg = `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='${encodeURIComponent(T.geo)}' stroke-width='1'%3E%3Cpolygon points='30,2 58,17 58,43 30,58 2,43 2,17'/%3E%3Cpolygon points='30,12 48,22 48,38 30,48 12,38 12,22'/%3E%3C/g%3E%3C/svg%3E")`;
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+        html,body{margin:0;padding:0;background:${T.bg}}
+        ::-webkit-scrollbar{display:none}
+        .app{font-family:'Outfit',sans-serif;background:${T.bg};min-height:100vh;max-width:430px;margin:0 auto;position:relative;transition:background 0.3s}
+        .arabic{font-family:'Amiri',serif;direction:rtl;text-align:right;line-height:2.1}
+        .scr{overflow-y:auto;-webkit-overflow-scrolling:touch;height:calc(100vh - 112px);padding-bottom:86px}
+        .fi{animation:fi 0.35s ease}
+        @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .pr{transition:transform 0.14s,opacity 0.14s;cursor:pointer}
+        .pr:active{transform:scale(0.96);opacity:0.82}
+        .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:${T.nav};backdrop-filter:blur(22px);border-top:1px solid ${T.navB};z-index:100;padding:10px 0 16px}
+        .tflash{animation:tfl 0.35s ease}
+        @keyframes tfl{0%{opacity:1}40%{opacity:0.65}100%{opacity:1}}
+        .moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+        .msheet{background:${T.modalBg};border-radius:24px 24px 0 0;width:100%;max-width:430px;max-height:88vh;display:flex;flex-direction:column}
+        .provrow{transition:background 0.12s;cursor:pointer}
+        .provrow:active{background:${T.provActive}!important}
+        input{font-family:'Outfit',sans-serif;outline:none}
+        input::placeholder{color:${T.textMute}}
+        .sw-track{width:46px;height:26px;border-radius:13px;background:${T.switchBg};position:relative;cursor:pointer;border:1px solid ${isDark?'rgba(212,175,55,0.35)':'rgba(160,120,40,0.28)'};transition:background 0.3s,border 0.3s}
+        .sw-knob{width:20px;height:20px;border-radius:50%;background:${T.switchKnob};position:absolute;top:2px;left:${isDark?'22px':'2px'};transition:left 0.28s cubic-bezier(0.4,0,0.2,1);box-shadow:0 1px 5px rgba(0,0,0,0.28)}
+        .slabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${T.sectionLabelColor};margin:0 0 10px 4px;font-weight:600}
+        .bar{height:7px;border-radius:5px;overflow:hidden;background:${T.progressBg}}
+        .bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#60a5fa,#93c5fd);transition:width 0.9s ease}
+        .topbar{position:sticky;top:0;z-index:50;background:${isDark?'rgba(8,13,24,0.94)':'rgba(250,247,240,0.94)'};backdrop-filter:blur(22px);border-bottom:1px solid ${T.navB};padding:10px 18px 10px;display:flex;justify-content:space-between;align-items:center}
+      `}</style>
+
+      <div className={`app${themeFlash?' tflash':''}`} style={{backgroundImage:geoSvg}}>
+
+        {/* ─── Top Bar ─── */}
+        <div className="topbar">
+          <span style={{color:T.goldDim,fontSize:12,fontWeight:700,letterSpacing:0.5}}>☪ Ramadan 1447H</span>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <span style={{color:T.textMute,fontSize:11,fontFamily:'monospace'}}>{clockStr}</span>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <span style={{fontSize:14}}>{isDark?'🌙':'☀️'}</span>
+              <div className="sw-track" onClick={toggleTheme}><div className="sw-knob"/></div>
+            </div>
           </div>
-          ${city.name===location.name?'<span class="check">✓</span>':''}
         </div>
-      `).join('') : ''}
-    `;
-  }).join('');
-}
 
-function toggleProv(province) {
-  expandedProv = expandedProv === province ? null : province;
-  renderProvList();
-}
+        {/* ════════════════════ HOME ════════════════════ */}
+        {tab==="home" && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
 
-function selectCity(province, cityName) {
-  const prov = CITIES.find(p=>p.province===province);
-  location = prov.cities.find(c=>c.name===cityName);
-  updateLocation();
-  closeModal();
-}
+            {/* Hero */}
+            <div style={{borderRadius:24,overflow:'hidden',margin:'14px 0 14px',background:T.heroBg,border:`1px solid ${T.accentB}`,padding:22,position:'relative'}}>
+              <div style={{position:'absolute',top:-24,right:-24,width:120,height:120,borderRadius:'50%',background:`radial-gradient(circle,${isDark?'rgba(212,175,55,0.12)':'rgba(212,175,55,0.1)'} 0%,transparent 70%)`}}/>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+                <div>
+                  <p style={{margin:0,color:T.textMute,fontSize:11,letterSpacing:1.5}}>{todayStr}</p>
+                  <p style={{margin:'3px 0 0',color:T.goldDim,fontSize:11}}>{getHijri()}</p>
+                </div>
+                <button onClick={()=>setShowLoc(true)} className="pr" style={{display:'flex',alignItems:'center',gap:5,background:isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)',border:`1px solid ${T.cardB}`,borderRadius:12,padding:'6px 11px',cursor:'pointer'}}>
+                  <span style={{fontSize:12}}>📍</span>
+                  <span style={{color:T.textSub,fontSize:11,fontWeight:500,maxWidth:90,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{loc.name}</span>
+                  <span style={{color:T.gold,fontSize:10}}>▾</span>
+                </button>
+              </div>
+              <div style={{textAlign:'center',padding:'6px 0 6px'}}>
+                <p style={{margin:'0 0 5px',color:T.textSub,fontSize:12}}>
+                  {nextPrayer==="Maghrib"?"⏳ Menuju Waktu Berbuka":nextPrayer==="Imsak"?"⏳ Menuju Imsak":`⏳ Menuju ${nextPrayer}`}
+                </p>
+                <div style={{fontFamily:'monospace',fontSize:44,fontWeight:700,color:T.countdownColor,letterSpacing:2,textShadow:isDark?'0 0 26px rgba(212,175,55,0.3)':'none'}}>
+                  {countdown}
+                </div>
+                {ramDay && (
+                  <div style={{marginTop:12}}>
+                    <span style={{background:T.accent,border:`1px solid ${T.accentB}`,borderRadius:20,padding:'4px 14px',color:T.gold,fontSize:11,fontWeight:700}}>
+                      Ramadan Hari ke-{ramDay}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
 
-function renderSearch() {
-  const q = document.getElementById('loc-search').value.trim().toLowerCase();
-  const list = document.getElementById('modal-list');
-  if (!q) { renderProvList(); return; }
-  const results = CITIES.flatMap(p=>p.cities.filter(c=>c.name.toLowerCase().includes(q)).map(c=>({...c,province:p.province})));
-  if (!results.length) { list.innerHTML = '<div class="empty-search">Kota tidak ditemukan 🔍</div>'; return; }
-  list.innerHTML = results.map(city => `
-    <div class="city-row" style="padding-left:20px" onclick="selectCity('${city.province}','${city.name}')">
-      <div>
-        <div class="city-name${city.name===location.name?' active-city':''}">${city.name}</div>
-        <div class="city-tz">${city.province} · WIB${city.tz>7?`+${city.tz-7}`:''}</div>
+            {/* Quick prayer */}
+            <p className="slabel">Jadwal Hari Ini</p>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}}>
+              {times && ["Imsak","Subuh","Maghrib","Isya"].map(name=>(
+                <div key={name} className="pr" style={{borderRadius:18,padding:'14px 15px',background:isNext(name)?T.accent:T.card,border:`1px solid ${isNext(name)?T.accentB:T.cardB}`}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                    <span style={{fontSize:18}}>{PRAYER_ICONS[name]}</span>
+                    {isNext(name) && <span style={{background:T.gold,borderRadius:6,padding:'2px 7px',fontSize:8,fontWeight:800,color:'#0a0f1a'}}>NEXT</span>}
+                  </div>
+                  <p style={{margin:'8px 0 2px',color:T.textSub,fontSize:11}}>{name}</p>
+                  <p style={{margin:0,color:isNext(name)?T.countdownColor:T.text,fontSize:22,fontWeight:700}}>{times[name]}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Amalan */}
+            <p className="slabel">Amalan Harian</p>
+            <div style={{borderRadius:20,background:T.card,border:`1px solid ${T.cardB}`,marginBottom:16,overflow:'hidden'}}>
+              {[{i:"📖",l:"Tilawah Al-Qur'an",s:"1 Juz per hari"},{i:"🤲",l:"Dzikir Pagi & Petang",s:"Setelah Subuh & Ashar"},{i:"💝",l:"Sedekah Harian",s:"Walau sedikit"},{i:"🕌",l:"Shalat Tarawih",s:"Berjamaah di masjid"}]
+                .map((it,idx,arr)=>(
+                <div key={idx} style={{display:'flex',alignItems:'center',padding:'13px 16px',borderBottom:idx<arr.length-1?`1px solid ${T.div}`:'none'}}>
+                  <span style={{fontSize:20,marginRight:13}}>{it.i}</span>
+                  <div style={{flex:1}}>
+                    <p style={{margin:0,color:T.text,fontSize:13,fontWeight:500}}>{it.l}</p>
+                    <p style={{margin:'1px 0 0',color:T.textMute,fontSize:11}}>{it.s}</p>
+                  </div>
+                  <div style={{width:22,height:22,borderRadius:'50%',border:`2px solid ${T.accentB}`}}/>
+                </div>
+              ))}
+            </div>
+
+            {/* Ayat */}
+            <div style={{borderRadius:20,background:T.greenBg,border:`1px solid ${T.greenB}`,padding:'18px 20px',textAlign:'center'}}>
+              <p className="arabic" style={{color:T.goldDim,fontSize:19,margin:'0 0 10px',lineHeight:1.9}}>شَهْرُ رَمَضَانَ الَّذِي أُنزِلَ فِيهِ الْقُرْآنُ</p>
+              <p style={{color:T.textSub,fontSize:12,margin:0,fontStyle:'italic',lineHeight:1.6}}>"Bulan Ramadhan yang di dalamnya diturunkan Al-Qur'an..." — QS. Al-Baqarah: 185</p>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ JADWAL ════════════════════ */}
+        {tab==="jadwal" && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <div style={{padding:'14px 0 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <div>
+                <h2 style={{margin:0,color:T.text,fontSize:21,fontWeight:700}}>Jadwal Sholat</h2>
+                <button onClick={()=>setShowLoc(true)} className="pr" style={{display:'flex',alignItems:'center',gap:4,background:'none',border:'none',cursor:'pointer',padding:0,marginTop:4}}>
+                  <span style={{color:T.goldDim,fontSize:12}}>📍 {loc.name}</span>
+                  <span style={{color:T.gold,fontSize:10}}>▾</span>
+                </button>
+              </div>
+              <span style={{background:T.accent,border:`1px solid ${T.accentB}`,borderRadius:10,padding:'5px 11px',color:T.gold,fontSize:11,fontWeight:600}}>
+                WIB{loc.tz>7?`+${loc.tz-7}`:''}
+              </span>
+            </div>
+
+            {times && (
+              <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${T.cardB}`,marginBottom:14}}>
+                <div style={{padding:'12px 16px',background:T.subuhGradient,borderBottom:`1px solid ${T.div}`}}>
+                  <span style={{color:T.gold,fontWeight:600,fontSize:12}}>Hari Ini — {todayStr}</span>
+                </div>
+                {Object.entries(times).map(([name,time],i,arr)=>(
+                  <div key={name} style={{display:'flex',alignItems:'center',padding:'13px 16px',background:isNext(name)?(isDark?'rgba(212,175,55,0.07)':'rgba(180,140,50,0.06)'):'transparent',borderBottom:i<arr.length-1?`1px solid ${T.div}`:'none'}}>
+                    <span style={{fontSize:18,marginRight:11,width:26,textAlign:'center'}}>{PRAYER_ICONS[name]||'🌙'}</span>
+                    <span style={{flex:1,color:isNext(name)?T.countdownColor:T.text,fontSize:14,fontWeight:isNext(name)?600:400}}>{name}</span>
+                    {isNext(name) && <span style={{background:T.gold,borderRadius:5,padding:'2px 7px',fontSize:8,fontWeight:700,color:'#0a0f1a',marginRight:10}}>NEXT</span>}
+                    <span style={{color:isNext(name)?T.countdownColor:T.text,fontSize:15,fontWeight:600,fontFamily:'monospace'}}>{time}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className="slabel">Jadwal 30 Hari Ramadan 1447H</p>
+            <div style={{borderRadius:18,overflow:'hidden',border:`1px solid ${T.cardB}`}}>
+              <div style={{display:'grid',gridTemplateColumns:'30px 1fr 56px 56px 60px',padding:'10px 13px',background:T.subuhGradient,borderBottom:`1px solid ${T.div}`}}>
+                {["#","Tanggal","Imsak","Subuh","Buka"].map(h=>(
+                  <span key={h} style={{color:T.gold,fontSize:9,fontWeight:700,letterSpacing:0.5}}>{h}</span>
+                ))}
+              </div>
+              {jadwal30.map((row,i)=>{
+                const today = ramDay===row.day;
+                return (
+                  <div key={i} style={{display:'grid',gridTemplateColumns:'30px 1fr 56px 56px 60px',padding:'10px 13px',background:today?T.accent:(i%2===0?'transparent':(isDark?'rgba(255,255,255,0.014)':'rgba(0,0,0,0.014)')),borderBottom:`1px solid ${T.div}`}}>
+                    <span style={{color:today?T.gold:T.textMute,fontSize:11,fontWeight:today?700:400}}>{row.day}</span>
+                    <span style={{color:today?T.countdownColor:T.textSub,fontSize:11,fontWeight:today?600:400}}>{row.date}</span>
+                    <span style={{color:T.textSub,fontSize:11,fontFamily:'monospace'}}>{row.imsak}</span>
+                    <span style={{color:T.textSub,fontSize:11,fontFamily:'monospace'}}>{row.subuh}</span>
+                    <span style={{color:isDark?'#f59e0b':'#b45309',fontSize:11,fontFamily:'monospace',fontWeight:600}}>{row.maghrib}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ KAJIAN ════════════════════ */}
+        {tab==="kajian" && !selKajian && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <div style={{padding:'14px 0 12px'}}>
+              <h2 style={{margin:0,color:T.text,fontSize:21,fontWeight:700}}>Blog Kajian</h2>
+              <p style={{margin:'3px 0 0',color:T.textMute,fontSize:12}}>Ilmu perbekalan Ramadhan</p>
+            </div>
+            {kajianData.map(item=>(
+              <div key={item.id} className="pr" onClick={()=>setSelKajian(item)} style={{borderRadius:20,overflow:'hidden',marginBottom:13,border:`1px solid ${T.cardB}`,background:T.card}}>
+                <div style={{padding:'17px 17px 13px',borderBottom:`1px solid ${T.div}`}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                    <span style={{fontSize:26}}>{item.icon}</span>
+                    <span style={{background:isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)',borderRadius:10,padding:'3px 10px',color:T.textSub,fontSize:10,fontWeight:600}}>{item.category}</span>
+                  </div>
+                  <h3 style={{margin:0,color:T.text,fontSize:15,fontWeight:700,lineHeight:1.4}}>{item.title}</h3>
+                </div>
+                <div style={{padding:'12px 17px'}}>
+                  <p style={{margin:'0 0 9px',color:T.textSub,fontSize:12,lineHeight:1.7}}>{item.excerpt}</p>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <span style={{color:T.textMute,fontSize:11}}>📅 {item.date} · ⏱ {item.readTime}</span>
+                    <span style={{color:T.gold,fontSize:12,fontWeight:600}}>Baca →</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="kajian" && selKajian && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <button onClick={()=>setSelKajian(null)} className="pr" style={{background:T.card,border:`1px solid ${T.cardB}`,borderRadius:12,color:T.text,padding:'9px 15px',marginTop:14,marginBottom:14,fontSize:12,cursor:'pointer',fontFamily:'Outfit,sans-serif'}}>← Kembali</button>
+            <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${T.cardB}`}}>
+              <div style={{padding:'20px 20px 15px',borderBottom:`1px solid ${T.div}`}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:11}}>
+                  <span style={{fontSize:28}}>{selKajian.icon}</span>
+                  <span style={{background:T.accent,border:`1px solid ${T.accentB}`,borderRadius:10,padding:'3px 11px',color:T.gold,fontSize:10,fontWeight:700}}>{selKajian.category}</span>
+                </div>
+                <h2 style={{margin:'0 0 7px',color:T.text,fontSize:18,fontWeight:700,lineHeight:1.4}}>{selKajian.title}</h2>
+                <p style={{margin:0,color:T.textMute,fontSize:11}}>📅 {selKajian.date} · ⏱ {selKajian.readTime}</p>
+              </div>
+              <div style={{padding:'18px 20px',background:T.card}}>
+                <p style={{margin:0,color:T.textSub,fontSize:14,lineHeight:1.85}}>{selKajian.content}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ DOA ════════════════════ */}
+        {tab==="doa" && !selDoa && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <div style={{padding:'14px 0 12px'}}>
+              <h2 style={{margin:0,color:T.text,fontSize:21,fontWeight:700}}>Kumpulan Doa</h2>
+              <p style={{margin:'3px 0 0',color:T.textMute,fontSize:12}}>Doa-doa pilihan Ramadhan</p>
+            </div>
+            {doaData.map(doa=>(
+              <div key={doa.id} className="pr" onClick={()=>setSelDoa(doa)} style={{borderRadius:18,padding:'15px',marginBottom:11,background:T.card,border:`1px solid ${T.cardB}`}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <span style={{color:T.text,fontSize:14,fontWeight:600}}>{doa.title}</span>
+                  <span style={{color:T.gold,fontSize:16}}>›</span>
+                </div>
+                <p className="arabic" style={{color:T.goldDim,fontSize:15,margin:'0 0 7px',lineHeight:1.9}}>{doa.arabic.substring(0,50)}...</p>
+                <p style={{color:T.textMute,fontSize:11,margin:0,fontStyle:'italic'}}>{doa.arti.substring(0,68)}...</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==="doa" && selDoa && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <button onClick={()=>setSelDoa(null)} className="pr" style={{background:T.card,border:`1px solid ${T.cardB}`,borderRadius:12,color:T.text,padding:'9px 15px',marginTop:14,marginBottom:14,fontSize:12,cursor:'pointer',fontFamily:'Outfit,sans-serif'}}>← Kembali</button>
+            <div style={{borderRadius:20,overflow:'hidden',border:`1px solid ${T.accentB}`}}>
+              <div style={{padding:'17px 20px 13px',background:T.accent}}>
+                <h3 style={{margin:0,color:T.countdownColor,fontSize:17,fontWeight:700}}>{selDoa.title}</h3>
+              </div>
+              <div style={{padding:'19px',background:T.card}}>
+                <div style={{background:isDark?'rgba(212,175,55,0.06)':'rgba(212,175,55,0.07)',borderRadius:15,padding:'17px 14px',marginBottom:14,border:`1px solid ${T.accentB}`}}>
+                  <p className="arabic" style={{color:T.goldDim,fontSize:21,margin:0,lineHeight:2.1}}>{selDoa.arabic}</p>
+                </div>
+                <div style={{marginBottom:13}}>
+                  <p style={{color:T.textMute,fontSize:9,letterSpacing:1.5,textTransform:'uppercase',margin:'0 0 5px',fontWeight:600}}>Latin</p>
+                  <p style={{color:T.textSub,fontSize:13,margin:0,lineHeight:1.75,fontStyle:'italic'}}>{selDoa.latin}</p>
+                </div>
+                <div style={{marginBottom:17}}>
+                  <p style={{color:T.textMute,fontSize:9,letterSpacing:1.5,textTransform:'uppercase',margin:'0 0 5px',fontWeight:600}}>Artinya</p>
+                  <p style={{color:T.text,fontSize:13,margin:0,lineHeight:1.75}}>{selDoa.arti}</p>
+                </div>
+                <button onClick={()=>copyDoa(selDoa)} className="pr" style={{width:'100%',padding:'13px',borderRadius:13,border:'none',background:copiedId===selDoa.id?(isDark?'rgba(52,211,153,0.18)':'rgba(32,160,80,0.13)'):(isDark?'rgba(212,175,55,0.14)':'rgba(180,140,50,0.11)'),color:copiedId===selDoa.id?'#34d399':T.gold,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'Outfit,sans-serif',transition:'all 0.2s'}}>
+                  {copiedId===selDoa.id ? "✓ Berhasil Disalin!" : "📋 Salin Doa"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ════════════════════ QURAN ════════════════════ */}
+        {tab==="quran" && (
+          <div className="scr fi" style={{padding:'0 16px 20px'}}>
+            <div style={{padding:'14px 0 12px'}}>
+              <h2 style={{margin:0,color:T.text,fontSize:21,fontWeight:700}}>Al-Qur'an</h2>
+              <p style={{margin:'3px 0 0',color:T.textMute,fontSize:12}}>Tilawah harian Ramadhan</p>
+            </div>
+            <div style={{borderRadius:20,padding:'15px',background:T.blueBg,border:`1px solid ${T.blueB}`,marginBottom:14}}>
+              <p style={{margin:'0 0 8px',color:T.textSub,fontSize:12}}>Target Khatam Ramadhan</p>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:7}}>
+                <span style={{color:T.text,fontSize:13,fontWeight:600}}>{ramDay?`Hari ${ramDay}`:"Belum Dimulai"} — Juz {ramDay||0}/30</span>
+                <span style={{color:isDark?'#93c5fd':'#2563eb',fontSize:12,fontWeight:700}}>{ramDay?Math.round((ramDay/30)*100):0}%</span>
+              </div>
+              <div className="bar"><div className="bar-fill" style={{width:`${ramDay?Math.round((ramDay/30)*100):0}%`}}/></div>
+            </div>
+            {SURAH_LIST.map(s=>(
+              <div key={s.no} style={{display:'flex',alignItems:'center',padding:'13px 14px',borderRadius:15,marginBottom:7,background:T.card,border:`1px solid ${T.cardB}`}}>
+                <div style={{width:36,height:36,borderRadius:9,background:T.accent,border:`1px solid ${T.accentB}`,display:'flex',alignItems:'center',justifyContent:'center',marginRight:12,flexShrink:0}}>
+                  <span style={{color:T.gold,fontSize:11,fontWeight:700}}>{s.no}</span>
+                </div>
+                <div style={{flex:1}}>
+                  <p style={{margin:0,color:T.text,fontSize:13,fontWeight:500}}>{s.name}</p>
+                  <p style={{margin:'1px 0 0',color:T.textMute,fontSize:11}}>{s.ayat} Ayat · Juz {s.juz}</p>
+                </div>
+                <p className="arabic" style={{margin:0,color:T.goldDim,fontSize:15}}>{s.ar}</p>
+              </div>
+            ))}
+            <div style={{textAlign:'center',padding:'14px',color:T.textMute,fontSize:12}}>Untuk membaca lengkap, gunakan aplikasi Al-Qur'an terpisah 📖</div>
+          </div>
+        )}
+
+        {/* ─── Bottom Nav ─── */}
+        <nav className="bnav">
+          <div style={{display:'flex',justifyContent:'space-around'}}>
+            {[{id:"home",icon:"🏠",label:"Beranda"},{id:"jadwal",icon:"🕌",label:"Jadwal"},{id:"kajian",icon:"📚",label:"Kajian"},{id:"doa",icon:"🤲",label:"Doa"},{id:"quran",icon:"📖",label:"Qur'an"}]
+              .map(t=>(
+              <button key={t.id} onClick={()=>{setTab(t.id);setSelKajian(null);setSelDoa(null);}} style={{background:'none',border:'none',cursor:'pointer',display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'4px 12px'}}>
+                <span style={{fontSize:20,transition:'transform 0.2s',display:'block',transform:tab===t.id?'scale(1.14)':'scale(1)'}}>{t.icon}</span>
+                <span style={{fontSize:10,fontWeight:tab===t.id?700:400,color:tab===t.id?T.gold:T.textMute,fontFamily:'Outfit,sans-serif'}}>{t.label}</span>
+                {tab===t.id && <div style={{width:4,height:4,borderRadius:'50%',background:T.gold}}/>}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {/* ════════════════════ LOCATION MODAL ════════════════════ */}
+        {showLoc && (
+          <div className="moverlay" onClick={()=>setShowLoc(false)}>
+            <div className="msheet" onClick={e=>e.stopPropagation()}>
+              {/* Drag handle */}
+              <div style={{display:'flex',justifyContent:'center',padding:'12px 0 4px'}}>
+                <div style={{width:38,height:4,borderRadius:2,background:isDark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.14)'}}/>
+              </div>
+              {/* Header */}
+              <div style={{padding:'8px 20px 13px',borderBottom:`1px solid ${T.div}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <h3 style={{margin:0,color:T.text,fontSize:17,fontWeight:700}}>Pilih Wilayah</h3>
+                  <p style={{margin:'3px 0 0',color:T.textMute,fontSize:11}}>📍 Saat ini: <strong style={{color:T.gold}}>{loc.name}</strong></p>
+                </div>
+                <button onClick={()=>setShowLoc(false)} style={{background:isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)',border:'none',borderRadius:10,width:30,height:30,cursor:'pointer',color:T.textSub,fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+              </div>
+              {/* Search */}
+              <div style={{padding:'12px 16px 8px'}}>
+                <div style={{position:'relative'}}>
+                  <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',fontSize:14,pointerEvents:'none'}}>🔍</span>
+                  <input value={locQ} onChange={e=>setLocQ(e.target.value)} placeholder="Cari kota atau provinsi..." style={{width:'100%',background:T.input,border:`1px solid ${T.inputB}`,borderRadius:13,padding:'11px 12px 11px 36px',color:T.text,fontSize:14}}/>
+                </div>
+              </div>
+              {/* City list */}
+              <div style={{flex:1,overflow:'auto',paddingBottom:28}}>
+                {locQ.trim() ? (
+                  filtered.length===0
+                    ? <div style={{textAlign:'center',padding:'30px',color:T.textMute,fontSize:13}}>Kota tidak ditemukan 🔍</div>
+                    : filtered.map(city=>(
+                      <div key={city.name} className="provrow" onClick={()=>{setLoc(city);setShowLoc(false);setLocQ("");}} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'13px 20px',borderBottom:`1px solid ${T.div}`,background:'transparent'}}>
+                        <div>
+                          <p style={{margin:0,color:loc.name===city.name?T.gold:T.text,fontSize:14,fontWeight:loc.name===city.name?600:400}}>{city.name}</p>
+                          <p style={{margin:'2px 0 0',color:T.textMute,fontSize:11}}>{city.province} · WIB{city.tz>7?`+${city.tz-7}`:''}</p>
+                        </div>
+                        {loc.name===city.name && <span style={{color:T.gold,fontSize:16}}>✓</span>}
+                      </div>
+                    ))
+                ) : (
+                  CITIES.map(prov=>(
+                    <div key={prov.province}>
+                      <div className="provrow" onClick={()=>setExpProv(expProv===prov.province?null:prov.province)} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 20px',borderBottom:`1px solid ${T.div}`,background:expProv===prov.province?T.provActive:'transparent'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:8}}>
+                          <span style={{color:T.text,fontSize:13,fontWeight:600}}>{prov.province}</span>
+                          {prov.cities.some(c=>c.name===loc.name) && <span style={{background:T.accent,border:`1px solid ${T.accentB}`,borderRadius:6,padding:'1px 7px',color:T.gold,fontSize:9,fontWeight:700}}>AKTIF</span>}
+                        </div>
+                        <div style={{display:'flex',alignItems:'center',gap:6}}>
+                          <span style={{color:T.textMute,fontSize:11}}>{prov.cities.length} kota</span>
+                          <span style={{color:T.textMute,fontSize:13,transition:'transform 0.2s',display:'inline-block',transform:expProv===prov.province?'rotate(90deg)':'rotate(0deg)'}}>›</span>
+                        </div>
+                      </div>
+                      {expProv===prov.province && prov.cities.map(city=>(
+                        <div key={city.name} className="provrow" onClick={()=>{setLoc(city);setShowLoc(false);setLocQ("");setExpProv(null);}} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'11px 20px 11px 32px',background:isDark?'rgba(255,255,255,0.025)':'rgba(0,0,0,0.025)',borderBottom:`1px solid ${T.div}`}}>
+                          <div>
+                            <p style={{margin:0,color:loc.name===city.name?T.gold:T.text,fontSize:13,fontWeight:loc.name===city.name?600:400}}>{city.name}</p>
+                            <p style={{margin:'2px 0 0',color:T.textMute,fontSize:10}}>Zona WIB{city.tz>7?`+${city.tz-7}`:''}</p>
+                          </div>
+                          {loc.name===city.name && <span style={{color:T.gold,fontSize:15}}>✓</span>}
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      ${city.name===location.name?'<span class="check">✓</span>':''}
-    </div>
-  `).join('');
+    </>
+  );
 }
-
-// ─── PWA Install Prompt ───────────────────────────────────────────────────────
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  setTimeout(() => {
-    document.getElementById('install-banner').classList.add('show');
-  }, 3000);
-});
-document.getElementById('install-btn').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('install-banner').classList.remove('show');
-});
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').classList.remove('show');
-});
-
-// ─── Service Worker ───────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
-}
-
-// ─── Start ────────────────────────────────────────────────────────────────────
-init();
-</script>
-</body>
-</html>
