@@ -253,7 +253,7 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
         <div class="hero-top">
           <div><div class="hero-date" id="hero-date">—</div><div class="hero-hijri" id="hero-hijri">—</div></div>
           <div class="loc-btn" onclick="openModal()">
-            <span>📍</span><span class="loc-btn-text" id="loc-name-home">Tangerang</span><span style="color:var(--gold);font-size:10px">▾</span>
+            <span>📍</span><span class="loc-btn-text" id="loc-name-home">Surabaya</span><span style="color:var(--gold);font-size:10px">▾</span>
           </div>
         </div>
         <div class="hero-center">
@@ -277,7 +277,7 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
     <!-- JADWAL -->
     <div class="page" id="page-jadwal">
       <div class="jadwal-header">
-        <div class="page-header" style="padding:14px 0 0"><div class="page-title">Jadwal Sholat</div><div style="display:flex;align-items:center;gap:4px;margin-top:4px;cursor:pointer" onclick="openModal()"><span style="color:var(--goldD);font-size:12px">📍 <span id="loc-name-jadwal">Tangerang</span></span><span style="color:var(--gold);font-size:10px">▾</span></div></div>
+        <div class="page-header" style="padding:14px 0 0"><div class="page-title">Jadwal Sholat</div><div style="display:flex;align-items:center;gap:4px;margin-top:4px;cursor:pointer" onclick="openModal()"><span style="color:var(--goldD);font-size:12px">📍 <span id="loc-name-jadwal">Surabaya</span></span><span style="color:var(--gold);font-size:10px">▾</span></div></div>
         <div class="tz-badge"><span class="tz-text" id="tz-label">WIB</span></div>
       </div>
       <div class="card" id="today-card"></div>
@@ -324,7 +324,7 @@ html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background
     <div class="modal-sheet">
       <div class="modal-handle"><div class="handle"></div></div>
       <div class="modal-header">
-        <div><div class="modal-title">Pilih Wilayah</div><div class="modal-sub">📍 Saat ini: <strong style="color:var(--gold)" id="modal-current">Tangerang</strong></div></div>
+        <div><div class="modal-title">Pilih Wilayah</div><div class="modal-sub">📍 Saat ini: <strong style="color:var(--gold)" id="modal-current">Surabaya</strong></div></div>
         <button class="close-btn" onclick="closeModal()">✕</button>
       </div>
       <div class="search-wrap"><span class="search-ico">🔍</span><input type="text" class="search-input" id="loc-search" placeholder="Cari kota atau provinsi..." oninput="renderSearch()"/></div>
@@ -546,7 +546,7 @@ const SURAH=[{no:1,name:"Al-Fatihah",ar:"الفاتحة",ayat:7,juz:1},{no:2,nam
 const PRAYER_ICONS={Imsak:'🌙',Subuh:'🌅',Syuruk:'☀️',Dzuhur:'🌤️',Ashar:'⛅',Maghrib:'🌇',Isya:'🌃'};
 const MONTHS_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-let isDark=true,loc=CITIES[1].cities[0],times=null,nextPrayer='',expandedProv=null;
+let isDark=true,loc=CITIES[5].cities[0],times=null,nextPrayer='',expandedProv=null;
 
 // ══ CLOCK ══
 function tickClock(){
